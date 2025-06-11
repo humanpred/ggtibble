@@ -1,4 +1,4 @@
-# ggtibble 1.0.1.9000
+# ggtibble 1.0.2
 
 * `ggtibble()` now warns if `outercols` are not used in either the `caption` or
   the `labs` argument (#13).
@@ -9,6 +9,7 @@
   objects (#23).
 * `ggsave()` can accept a character vector of all filenames to use when saving
   (#25).
+* Update testing to work with ggplot2 version 4.0.0
 
 # ggtibble 1.0.1
 
