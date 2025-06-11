@@ -1,6 +1,6 @@
 Package: ggtibble
 Title: Create Tibbles and Lists of 'ggplot' Figures for Reporting
-Version: 1.0.1.9000
+Version: 1.0.2
 Authors@R: 
     person("Bill", "Denney", email="wdenney@humanpredictions.com", role=c("aut", "cre"), comment=c(ORCID="0000-0002-5759-428X"))
 Description:
@@ -30,7 +30,7 @@ Imports:
     tibble,
     tidyr,
     vctrs
-URL: https://billdenney.github.io/ggtibble/, https://github.com/billdenney/ggtibble
-BugReports: https://github.com/billdenney/ggtibble/issues
+URL: https://humanpred.github.io/ggtibble/, https://github.com/humanpred/ggtibble
+BugReports: https://github.com/humanpred/ggtibble/issues
 Language: en-US
 VignetteBuilder: knitr

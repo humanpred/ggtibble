@@ -88,7 +88,7 @@ test_that("vec_arith for gglists", {
 
 test_that("new_gglist accepted input classes", {
   expect_s3_class(
-    new_gglist(list(ggplot2::labs("foo"))),
+    new_gglist(list(ggplot2::labs(x = "foo"))),
     "gglist"
   )
   expect_s3_class(
