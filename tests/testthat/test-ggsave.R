@@ -75,3 +75,27 @@ test_that("ggsave with all filenames specified (#25)", {
     fixed = TRUE
   )
 })
+
+test_that("ggsave.default", {
+  d_plot <-
+    data.frame(
+      A = rep(c("foo", "bar"), each = 4),
+      B = 1:8,
+      C = 11:18,
+      Bunit = "mg",
+      Cunit = "km"
+    )
+  current_plots <-
+    ggplot2::ggplot(
+      d_plot,
+      ggplot2::aes(x = B, y = C)
+    ) +
+    ggplot2::geom_point() +
+    ggplot2::geom_line()
+  expected_file <- file.path(tempdir(), "foo.png")
+  expect_equal(
+    ggsave(filename = "foo.png", plot = current_plots, path = tempdir()),
+    expected_file
+  )
+  unlink(expected_file)
+})
