@@ -111,6 +111,9 @@ vec_arith.gglist.guides <- vec_arith.gglist.gg
 #' @method vec_arith.gglist uneval
 vec_arith.gglist.uneval <- vec_arith.gglist.gg # aes()
 #' @export
+#' @method vec_arith.gglist ggbreak_params
+vec_arith.gglist.ggbreak_params <- vec_arith.gglist.gg # ggbreaks package
+#' @export
 #' @method vec_arith.gglist data.frame
 vec_arith.gglist.data.frame <-  function(op, x, y, ...) {
   stopifnot(op == "+")
