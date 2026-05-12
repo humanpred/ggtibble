@@ -1,7 +1,7 @@
 Package: ggtibble
 Title: Create Tibbles and Lists of 'ggplot' Figures for Reporting
-Version: 1.0.2
-Authors@R: 
+Version: 1.0.2.9000
+Authors@R:
     person("Bill", "Denney", email="wdenney@humanpredictions.com", role=c("aut", "cre"), comment=c(ORCID="0000-0002-5759-428X"))
 Description:
   Create tibbles and lists of 'ggplot' figures that can be modified as easily as
@@ -11,15 +11,16 @@ Description:
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Depends: R (>= 4.3)
-Suggests: 
+Suggests:
+    ggbreak,
     rmarkdown,
     spelling,
     testthat (>= 3.0.0),
     withr
 Config/testthat/edition: 3
-Imports: 
+Imports:
     checkmate,
     dplyr,
     ggplot2,

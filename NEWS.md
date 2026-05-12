@@ -1,3 +1,7 @@
+# ggtibble 1.0.2.9000
+
+* Works with the `ggbreak` package
+
 # ggtibble 1.0.2
 
 * `ggtibble()` now warns if `outercols` are not used in either the `caption` or

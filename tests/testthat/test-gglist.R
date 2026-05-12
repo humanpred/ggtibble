@@ -84,6 +84,16 @@ test_that("vec_arith for gglists", {
   expect_length(g1 + g2, 2)
 })
 
+test_that("ggbreak arithmetic", {
+  skip_if_not_installed("ggbreak")
+  g1 <- new_gglist(list(ggplot2::ggplot(environment = emptyenv())))
+  # add a single item to a single gglist
+  expect_s3_class(
+    g1 + ggbreak::scale_x_break(c(1, 2)),
+    "gglist"
+  )
+})
+
 # new_gglist ####
 
 test_that("new_gglist accepted input classes", {
