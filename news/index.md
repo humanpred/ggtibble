@@ -1,5 +1,9 @@
 # Changelog
 
+## ggtibble 1.0.2.9000
+
+- Works with the `ggbreak` package
+
 ## ggtibble 1.0.2
 
 CRAN release: 2025-06-11
