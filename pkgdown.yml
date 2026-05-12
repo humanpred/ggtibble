@@ -1,9 +1,9 @@
-pandoc: 3.1.11
-pkgdown: 2.1.3
+pandoc: 3.8.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   v01-introduction: v01-introduction.html
-last_built: 2025-06-11T18:35Z
+last_built: 2026-05-12T18:52Z
 urls:
   reference: https://humanpred.github.io/ggtibble/reference
   article: https://humanpred.github.io/ggtibble/articles
