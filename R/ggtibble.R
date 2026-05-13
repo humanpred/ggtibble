@@ -22,6 +22,12 @@ ggtibble <- function(data, ...) {
 #' @param outercols The columns to have outside the nesting
 #' @param caption The glue specification for creating the caption
 #' @param labs Labels to add via `labs_glue()`
+#' @param panel_caption A glue template appended to each caption when a row's
+#'   figure renders as multiple pages (e.g. via
+#'   `ggforce::facet_wrap_paginate()`).  Available glue variables are `page`
+#'   (the current page number, 1-indexed) and `n_pages` (the total page count
+#'   for that row).  Set to `NULL` or `""` to opt out and let the caption
+#'   repeat unchanged for every page.
 #' @returns A `ggtibble` object which is a tibble with columns named "figure"
 #'   which is a `gglist` object (a list of ggplots), "data_plot" which is the a
 #'   list of data.frames making up the source data used for each individual
@@ -48,7 +54,10 @@ ggtibble <- function(data, ...) {
 #'   ggplot2::geom_line()
 #' knit_print(all_plots)
 #' @export
-ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols = group_vars(data), labs = list(), caption = "") {
+ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ...,
+                                outercols = group_vars(data), labs = list(),
+                                caption = "",
+                                panel_caption = " (panel {page} of {n_pages})") {
   if (!tibble::is_tibble(data)) {
     data <- tibble::as_tibble(as.data.frame(data))
   }
@@ -70,7 +79,7 @@ ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols =
   }
 
   d_plot$caption <- glue::glue_data(d_plot, caption)
-  d_plot <- new_ggtibble(d_plot)
+  d_plot <- new_ggtibble(d_plot, panel_caption = panel_caption)
   if (length(labs) > 0) {
     d_plot$figure <-
       d_plot$figure +
@@ -86,17 +95,28 @@ ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols =
 #'
 #' @param x A data.frame with a column named "figure" and "caption", and where
 #'   the "figure" column is a ggtibble.
+#' @param panel_caption A glue template appended to each caption when a row's
+#'   figure renders as multiple pages.  See [ggtibble()] for details.  If
+#'   omitted, any existing `panel_caption` attribute on `x` is preserved (and
+#'   defaulted otherwise).
 #' @returns The object with a ggtibble class
 #' @family New ggtibble objects
 #' @examples
 #' new_ggtibble(tibble::tibble(figure = list(ggplot2::ggplot()), caption = ""))
 #' @export
-new_ggtibble <- function(x) {
+new_ggtibble <- function(x, panel_caption) {
   stopifnot(is.data.frame(x))
   stopifnot(c("figure", "caption") %in% names(x))
   if (!inherits(x$figure, "gglist")) {
     x$figure <- new_gglist(x$figure)
   }
+  if (missing(panel_caption)) {
+    panel_caption <- attr(x, "panel_caption", exact = TRUE)
+    if (is.null(panel_caption)) {
+      panel_caption <- " (panel {page} of {n_pages})"
+    }
+  }
+  attr(x, "panel_caption") <- panel_caption
   class(x) <- unique(c("ggtibble", class(x)))
   x
 }

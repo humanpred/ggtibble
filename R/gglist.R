@@ -51,7 +51,9 @@ format.gglist <- function(x, ...) {
 #' @export
 print.gglist <- function(x, ...) {
   for (idx in seq_along(x)) {
-    print(x[[idx]], ...)
+    for (page in gg_to_pages(x[[idx]])) {
+      print(page, ...)
+    }
   }
   invisible(x)
 }
@@ -136,6 +138,11 @@ knitr::knit_print
 #' `sprintf()` must be met; for example, if you want a percent sign ("%") in the
 #' filename, it must be doubled so that sprintf returns what is desired.
 #'
+#' When an element of `x` uses `ggforce::facet_wrap_paginate()` or
+#' `ggforce::facet_grid_paginate()`, every page is rendered.  The `filename`
+#' length (when not using the `%d` sprintf form) must match the total number of
+#' rendered pages, which may exceed `length(x)`.
+#'
 #' @param x The gglist object
 #' @param ... extra arguments to `knit_print()`
 #' @param filename A filename with an optional "%d" sprintf pattern for saving
@@ -155,22 +162,34 @@ knitr::knit_print
 #' knit_print(p, fig_suffix = "\n\n\\FloatBarrier\n\n")
 #' @export
 knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = "\n\n") {
-  if (!is.null(filename)) {
-    if (length(filename) == length(x)) {
-      # do nothing
-    } else if (length(filename) == 1 && grepl(x = filename, pattern = "%[0-9]*d")) {
-      filename <- sprintf(filename, seq_along(x))
-    }
+  page_counts <- vapply(seq_along(x), function(i) n_pages_for_plot(x[[i]]), integer(1))
+  filename_list <- expand_filenames(filename, page_counts)
+  pos <- 1L
+  for (idx in seq_along(x)) {
+    n <- page_counts[idx]
+    slice <- filename_list[pos:(pos + n - 1L)]
+    per_elt_filename <-
+      if (all(vapply(slice, is.null, logical(1)))) {
+        NULL
+      } else {
+        unlist(slice)
+      }
+    knitr::knit_print(
+      x = x[[idx]], ...,
+      filename = per_elt_filename,
+      fig_suffix = fig_suffix
+    )
+    pos <- pos + n
   }
-  stopifnot("`filename` must be NULL, the same length as `x`, or an sprintf format" = is.null(filename) |
-    length(filename) == length(x))
-  lapply(X = seq_along(x), FUN = function(idx) {
-    knitr::knit_print(x = x[[idx]], ..., filename = filename[[idx]], fig_suffix = fig_suffix)
-  })
   invisible(x)
 }
 
 #' Print a ggplot (usually within knit_print.gglist)
+#'
+#' When `x` uses `ggforce::facet_wrap_paginate()` or
+#' `ggforce::facet_grid_paginate()`, every page is rendered.  If `filename` is
+#' supplied for a paginated plot it must either be length 1 with a `%d`
+#' sprintf pattern, or length equal to the total number of pages.
 #'
 #' @param x The gg object (i.e. a ggplot)
 #' @param ... Ignored
@@ -182,20 +201,24 @@ knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = "\n\n") {
 #' @family knitters
 #' @export
 knit_print.gg <- function(x, ..., fig_prefix, fig_suffix, filename = NULL, width = 6, height = 4, units = "in") {
-  cat("\n\n")
-  if (!missing(fig_prefix)) {
-    cat(fig_prefix)
+  pages <- gg_to_pages(x)
+  filename_list <- expand_filenames(filename, length(pages))
+  for (i in seq_along(pages)) {
+    cat("\n\n")
+    if (!missing(fig_prefix)) {
+      cat(fig_prefix)
+    }
+    print(pages[[i]], ...)
+    if (!is.null(filename_list[[i]])) {
+      ggplot2::ggsave(
+        filename = filename_list[[i]], plot = pages[[i]], width = width,
+        height = height, units = units
+      )
+    }
+    if (!missing(fig_suffix)) {
+      cat(fig_suffix)
+    }
+    cat("\n\n")
   }
-  print(x, ...)
-  if (!is.null(filename)) {
-    ggplot2::ggsave(
-      filename = filename, plot = x, width = width,
-      height = height, units = units
-    )
-  }
-  if (!missing(fig_suffix)) {
-    cat(fig_suffix)
-  }
-  cat("\n\n")
   invisible(x)
 }

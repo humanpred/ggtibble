@@ -118,7 +118,7 @@ test_that("knit_print.ggtibble", {
 
   expect_error(
     knit_print(all_plots, filename = file.path(tempdir(), "foo.png")),
-    regexp = "`filename` must be NULL, the same length as `x`, or an sprintf format"
+    regexp = "`filename` must be NULL"
   )
 
   # Write manually-named files

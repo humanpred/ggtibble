@@ -1,5 +1,15 @@
 # ggtibble 1.0.2.9000
 
+* `gglist` and `ggtibble` objects now automatically render every page when an
+  element uses `ggforce::facet_wrap_paginate()` or
+  `ggforce::facet_grid_paginate()`.  A new exported S3 generic `as_gglist()`
+  (with methods for `gg`, `list`, and `gglist`) returns the page-flattened
+  form explicitly.  `ggtibble()` gains a `panel_caption` argument (a glue
+  template defaulting to `" (panel {page} of {n_pages})"`, `NULL` to opt out)
+  so each rendered page receives a unique caption suitable for Quarto
+  cross-references.  `ggsave.gglist()` and `knit_print.gglist()` accept a
+  single filename with a `%d` sprintf pattern that is expanded to match the
+  total number of rendered pages.  `ggforce` is added to Suggests (#2).
 * New `ggtibble` knitr chunk option that simplifies rendering a `ggtibble` in
   R Markdown and Quarto reports.  Setting `ggtibble = "my_obj"` (or
   `ggtibble = my_obj`) on a chunk auto-sets the chunk label, `fig.cap`, and

@@ -19,7 +19,10 @@ ggsave <- function(filename,
 }
 
 #' @describeIn ggsave Save the figures in a `gglist` object
-#' @param filename A vector of unique file names for each `plot`
+#' @param filename A vector of unique file names for each rendered page.  May
+#'   also be length 1 with a `%d` sprintf pattern that will be expanded to
+#'   match the total number of pages (including pages produced by
+#'   `ggforce::facet_wrap_paginate()` or `ggforce::facet_grid_paginate()`).
 #' @export
 ggsave.gglist <- function(filename,
                           plot,
@@ -34,18 +37,23 @@ ggsave.gglist <- function(filename,
                           bg = NULL,
                           create.dir = FALSE,
                           ...) {
-  if (length(filename) != length(plot)) {
-    stop("There must be one `filename` per `plot`")
-  } else if (any(duplicated(filename))) {
+  pages_per_plot <- vapply(seq_along(plot), function(i) n_pages_for_plot(plot[[i]]), integer(1))
+  filename_list <- expand_filenames(filename, pages_per_plot)
+  filenames_chr <- vapply(filename_list, identity, character(1))
+  if (any(duplicated(filenames_chr))) {
     stop("Each `filename` must be unique")
   }
+  expanded_plots <- unlist(
+    lapply(seq_along(plot), function(i) gg_to_pages(plot[[i]])),
+    recursive = FALSE
+  )
   ret <-
     vapply(
-      X = seq_along(plot),
+      X = seq_along(expanded_plots),
       FUN = \(idx) {
         ggplot2::ggsave(
-          filename = filename[[idx]],
-          plot = plot[[idx]],
+          filename = filenames_chr[[idx]],
+          plot = expanded_plots[[idx]],
           device = device,
           path = path,
           scale = scale,

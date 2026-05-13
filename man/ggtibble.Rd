@@ -14,7 +14,8 @@ ggtibble(data, ...)
   ...,
   outercols = group_vars(data),
   labs = list(),
-  caption = ""
+  caption = "",
+  panel_caption = " (panel {page} of {n_pages})"
 )
 }
 \arguments{
@@ -30,6 +31,13 @@ If not specified, must be supplied in each layer added to the plot.}
 \item{labs}{Labels to add via \code{labs_glue()}}
 
 \item{caption}{The glue specification for creating the caption}
+
+\item{panel_caption}{A glue template appended to each caption when a row's
+figure renders as multiple pages (e.g. via
+\code{ggforce::facet_wrap_paginate()}).  Available glue variables are \code{page}
+(the current page number, 1-indexed) and \code{n_pages} (the total page count
+for that row).  Set to \code{NULL} or \code{""} to opt out and let the caption
+repeat unchanged for every page.}
 }
 \value{
 A data.frame with a column named "data_plot" with the data to plot, "figure" with the gglist, and "caption" with the captions
