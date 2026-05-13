@@ -2,3 +2,5 @@
 docs
 .Rhistory
 inst/doc
+tests/testthat/Rplots.pdf
+tests/testthat/figure/

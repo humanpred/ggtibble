@@ -88,3 +88,20 @@ as_tibble(all_plots)
 # You can then show all the figures with the `knit_print()` method.
 knit_print(all_plots)
 ```
+
+# Shorter syntax via the `ggtibble` chunk option
+
+The `ggtibble` package registers a knitr `opts_hooks` callback that lets you
+render a `ggtibble` with a single chunk option.  The chunk below is equivalent
+to the one above: the chunk label, `fig.cap`, and `knit_print()` call are all
+derived from the `ggtibble` option value.
+
+````
+```{r ggtibble="all_plots"}
+```
+````
+
+The option value is R code given as a character string and is evaluated in the
+knit environment, so `ggtibble = "targets::tar_read(all_plots)"` also works.
+This same syntax works in Quarto, where the auto-generated chunk label is
+prefixed with `fig-` so that `@fig-all_plots` cross-references resolve.

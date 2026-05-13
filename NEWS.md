@@ -1,5 +1,11 @@
 # ggtibble 1.0.2.9000
 
+* New `ggtibble` knitr chunk option that simplifies rendering a `ggtibble` in
+  R Markdown and Quarto reports.  Setting `ggtibble = "my_obj"` (or
+  `ggtibble = my_obj`) on a chunk auto-sets the chunk label, `fig.cap`, and
+  injects `knit_print(my_obj)` for empty chunk bodies.  Under Quarto, the
+  label is prefixed with `fig-` and multi-caption objects use `fig.subcap` so
+  `@fig-...` cross-references work (issue 17).
 * Works with the `ggbreak` package
 
 # ggtibble 1.0.2

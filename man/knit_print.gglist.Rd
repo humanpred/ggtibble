@@ -48,7 +48,7 @@ p <- gglist(mydata, ggplot2::aes(x = x, y = y)) +
 knit_print(p, fig_suffix = "\n\n\\\\FloatBarrier\n\n")
 }
 \seealso{
-Other knitters: 
-\code{\link{knit_print.gg}()}
+Other knitters:
+\code{\link[=knit_print.gg]{knit_print.gg()}}
 }
 \concept{knitters}

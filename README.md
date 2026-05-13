@@ -47,3 +47,12 @@ all_plots <-
   ggplot2::geom_line()
 knit_print(all_plots)
 ```
+
+In an R Markdown or Quarto report, the `ggtibble` chunk option is a one-line
+shorthand for the above: it auto-derives the chunk label, sets `fig.cap` from
+the object's caption, and runs `knit_print()` automatically.
+
+````
+```{r ggtibble="all_plots"}
+```
+````

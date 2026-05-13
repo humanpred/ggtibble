@@ -20,7 +20,7 @@ Create a new \code{ggtibble} object
 new_ggtibble(tibble::tibble(figure = list(ggplot2::ggplot()), caption = ""))
 }
 \seealso{
-Other New ggtibble objects: 
-\code{\link{new_gglist}()}
+Other New ggtibble objects:
+\code{\link[=new_gglist]{new_gglist()}}
 }
 \concept{New ggtibble objects}
