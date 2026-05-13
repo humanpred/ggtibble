@@ -181,6 +181,51 @@ Horsepower by displacement for 8 cars
 </p>
 </div>
 </div>
+<div class="section level2">
+<h2 id="shorter-syntax-via-the-ggtibble-chunk-option">Shorter syntax via the <code>ggtibble</code> chunk option<a class="anchor" aria-label="anchor" href="#shorter-syntax-via-the-ggtibble-chunk-option"></a>
+</h2>
+<p>The <code>ggtibble</code> package registers a knitr
+<code>opts_hooks</code> callback that lets you render a
+<code>ggtibble</code> with a single chunk option. The chunk below is
+equivalent to the one above: the chunk label, <code>fig.cap</code>, and
+<code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print()</a></code> call are all derived from the
+<code>ggtibble</code> option value.</p>
+<pre><code>
+``` r
+knitr::knit_print(getFromNamespace(".ggtibble_chunk_cache", "ggtibble")[["all_plots"]])
+```
+
+
+
+&lt;div class="figure"&gt;
+&lt;img src="/home/runner/work/ggtibble/ggtibble/docs/articles/v01-introduction_files/figure-html/all_plots-1.png" class="r-plt" alt="Horsepower by displacement for 6 cars" width="700" /&gt;
+&lt;p class="caption"&gt;Horsepower by displacement for 6 cars&lt;/p&gt;
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="figure"&gt;
+&lt;img src="/home/runner/work/ggtibble/ggtibble/docs/articles/v01-introduction_files/figure-html/all_plots-2.png" class="r-plt" alt="Horsepower by displacement for 4 cars" width="700" /&gt;
+&lt;p class="caption"&gt;Horsepower by displacement for 4 cars&lt;/p&gt;
+&lt;/div&gt;
+
+
+
+
+
+&lt;div class="figure"&gt;
+&lt;img src="/home/runner/work/ggtibble/ggtibble/docs/articles/v01-introduction_files/figure-html/all_plots-3.png" class="r-plt" alt="Horsepower by displacement for 8 cars" width="700" /&gt;
+&lt;p class="caption"&gt;Horsepower by displacement for 8 cars&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<p>The option value is R code given as a character string and is
+evaluated in the knit environment, so
+<code>ggtibble = "targets::tar_read(all_plots)"</code> also works. This
+same syntax works in Quarto, where the auto-generated chunk label is
+prefixed with <code>fig-</code> so that <code>@fig-all_plots</code>
+cross-references resolve.</p>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>

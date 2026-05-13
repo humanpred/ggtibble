@@ -91,6 +91,9 @@
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print</a></span><span class="op">(</span><span class="va">all_plots</span><span class="op">)</span></span></code></pre></div>
+<p>In an R Markdown or Quarto report, the <code>ggtibble</code> chunk option is a one-line shorthand for the above: it auto-derives the chunk label, sets <code>fig.cap</code> from the object’s caption, and runs <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print()</a></code> automatically.</p>
+<pre><code>```{r ggtibble="all_plots"}
+```</code></pre>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

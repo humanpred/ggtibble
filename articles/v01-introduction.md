@@ -123,3 +123,47 @@ Horsepower by displacement for 4 cars
 cars](v01-introduction_files/figure-html/typical-3.png)
 
 Horsepower by displacement for 8 cars
+
+## Shorter syntax via the `ggtibble` chunk option
+
+The `ggtibble` package registers a knitr `opts_hooks` callback that lets
+you render a `ggtibble` with a single chunk option. The chunk below is
+equivalent to the one above: the chunk label, `fig.cap`, and
+[`knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html) call are
+all derived from the `ggtibble` option value.
+
+
+    ``` r
+    knitr::knit_print(getFromNamespace(".ggtibble_chunk_cache", "ggtibble")[["all_plots"]])
+    ```
+
+
+
+    <div class="figure">
+    <img src="/home/runner/work/ggtibble/ggtibble/docs/articles/v01-introduction_files/figure-html/all_plots-1.png" class="r-plt" alt="Horsepower by displacement for 6 cars" width="700" />
+    <p class="caption">Horsepower by displacement for 6 cars</p>
+    </div>
+
+
+
+
+
+    <div class="figure">
+    <img src="/home/runner/work/ggtibble/ggtibble/docs/articles/v01-introduction_files/figure-html/all_plots-2.png" class="r-plt" alt="Horsepower by displacement for 4 cars" width="700" />
+    <p class="caption">Horsepower by displacement for 4 cars</p>
+    </div>
+
+
+
+
+
+    <div class="figure">
+    <img src="/home/runner/work/ggtibble/ggtibble/docs/articles/v01-introduction_files/figure-html/all_plots-3.png" class="r-plt" alt="Horsepower by displacement for 8 cars" width="700" />
+    <p class="caption">Horsepower by displacement for 8 cars</p>
+    </div>
+
+The option value is R code given as a character string and is evaluated
+in the knit environment, so `ggtibble = "targets::tar_read(all_plots)"`
+also works. This same syntax works in Quarto, where the auto-generated
+chunk label is prefixed with `fig-` so that `@fig-all_plots`
+cross-references resolve.
