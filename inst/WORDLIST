@@ -1,5 +1,6 @@
 CMD
 Codecov
+Knitr
 Tibbles
 bmp
 colour
@@ -10,6 +11,8 @@ gglist
 ggplot
 ggplots
 jpeg
+knitr
+labelled
 pictex
 png
 ps

@@ -14,12 +14,12 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{dplyr}{\code{\link[dplyr:group_data]{group_vars}}}
+  \item{dplyr}{\code{\link[dplyr:group_vars]{group_vars()}}}
 
-  \item{ggplot2}{\code{\link[ggplot2]{ggplot}}}
+  \item{ggplot2}{\code{\link[ggplot2:ggplot]{ggplot()}}}
 
-  \item{knitr}{\code{\link[knitr]{knit_print}}}
+  \item{knitr}{\code{\link[knitr:knit_print]{knit_print()}}}
 
-  \item{vctrs}{\code{\link[vctrs]{vec_arith}}}
+  \item{vctrs}{\code{\link[vctrs:vec_arith]{vec_arith()}}}
 }}
 

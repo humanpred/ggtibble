@@ -11,10 +11,10 @@ Description:
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends: R (>= 4.3)
 Suggests:
     ggbreak,
+    quarto,
     rmarkdown,
     spelling,
     testthat (>= 3.0.0),
@@ -35,3 +35,4 @@ URL: https://humanpred.github.io/ggtibble/, https://github.com/humanpred/ggtibbl
 BugReports: https://github.com/humanpred/ggtibble/issues
 Language: en-US
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

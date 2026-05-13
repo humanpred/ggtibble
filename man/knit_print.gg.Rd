@@ -39,7 +39,7 @@ The gg object, invisibly
 Print a ggplot (usually within knit_print.gglist)
 }
 \seealso{
-Other knitters: 
-\code{\link{knit_print.gglist}()}
+Other knitters:
+\code{\link[=knit_print.gglist]{knit_print.gglist()}}
 }
 \concept{knitters}
