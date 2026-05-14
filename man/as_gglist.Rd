@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_gglist.R
 \name{as_gglist}
 \alias{as_gglist}
-\title{Convert an object to a \code{gglist}, expanding any paginated facets}
+\title{Convert an object to a \code{gglist}}
 \usage{
 as_gglist(x, ...)
 }
@@ -15,12 +15,18 @@ as_gglist(x, ...)
 A \code{gglist} object.
 }
 \description{
-Returns a \code{gglist} where every element is exactly one renderable page.
-For inputs that use \code{ggforce::facet_wrap_paginate()} or
-\code{ggforce::facet_grid_paginate()}, each page is expanded into its own
-element of the result.  Inputs that do not use paginated facets are
-wrapped (or returned) as a \code{gglist} unchanged in length, making the
-function idempotent for non-paginated input.
+Promotes an input value to a \code{gglist}.  This is a pure type coercion
+generic: a single \code{gg} becomes a length-1 \code{gglist}, a list of plots
+becomes a \code{gglist} wrapping that list, and an input that is already a
+\code{gglist} is returned unchanged.
+}
+\details{
+Page expansion for \code{ggforce::facet_wrap_paginate()} /
+\code{ggforce::facet_grid_paginate()} is handled at render time by
+\code{\link[=print.gglist]{print.gglist()}}, \code{\link[=knit_print.gglist]{knit_print.gglist()}}, and \code{\link[=ggsave.gglist]{ggsave.gglist()}} — it is
+not the job of \code{as_gglist()}.  Keeping the two concerns separate makes
+\code{as_gglist()} idempotent and preserves the logical length of a gglist
+(so \verb{vec_arith.gglist.*} length-matching keeps working).
 }
 \examples{
 p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
