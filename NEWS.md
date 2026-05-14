@@ -1,5 +1,13 @@
 # ggtibble 1.0.2.9000
 
+* New exported S3 generic `as_gglist()` (methods for `gg`, `list`, `gglist`,
+  `labels`, and `NULL`) that promotes an input to a `gglist`.  When the input
+  uses `ggforce::facet_wrap_paginate()` or `ggforce::facet_grid_paginate()`,
+  `as_gglist()` expands the paginated plot into one element per rendered
+  page so it can be passed to `print()`, `knit_print()`, or `ggsave()` and
+  every page will render.  Page expansion is opt-in — render methods are
+  unchanged and do not call `as_gglist()` implicitly.  `ggforce` is added to
+  Suggests (issue 2).
 * New `ggtibble` knitr chunk option that simplifies rendering a `ggtibble` in
   R Markdown and Quarto reports.  Setting `ggtibble = "my_obj"` (or
   `ggtibble = my_obj`) on a chunk auto-sets the chunk label, `fig.cap`, and
