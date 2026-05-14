@@ -208,64 +208,16 @@ test_that("expand_captions_for_pages leaves captions unchanged when no paginatio
 
 test_that("expand_captions_for_pages appends panel suffix when figures paginate", {
   skip_if_not_installed("ggforce")
-  d_plot <- data.frame(A = c("foo", "bar"), B = 1:2)
-  gt <- ggtibble(d_plot, ggplot2::aes(x = B, y = B), outercols = "A", caption = "Cap {A}") +
-    ggforce::facet_wrap_paginate(~ B, ncol = 1, nrow = 1)
-  result <- expand_captions_for_pages(gt)
-  # Each row has 1 page (only one B value per row after nesting).
-  # Build a real multi-page case manually:
-  d_plot2 <- data.frame(
+  d_plot <- data.frame(
     A = rep(c("foo", "bar"), each = 3),
     B = c(1, 2, 3, 4, 5, 6)
   )
-  gt2 <- ggtibble(d_plot2, ggplot2::aes(x = B, y = B), outercols = "A", caption = "Cap {A}") +
+  gt <- ggtibble(d_plot, ggplot2::aes(x = B, y = B), outercols = "A", caption = "Cap {A}") +
     ggforce::facet_wrap_paginate(~ B, ncol = 1, nrow = 1)
-  result2 <- expand_captions_for_pages(gt2)
+  result <- expand_captions_for_pages(gt)
   # 2 rows x 3 pages each = 6 expanded captions
-  expect_length(result2, 6)
-  expect_match(result2[1], "^Cap foo \\(panel 1 of 3\\)$")
-  expect_match(result2[3], "^Cap foo \\(panel 3 of 3\\)$")
-  expect_match(result2[4], "^Cap bar \\(panel 1 of 3\\)$")
-})
-
-test_that("panel_caption = NULL replicates captions without suffix", {
-  skip_if_not_installed("ggforce")
-  d_plot <- data.frame(A = "foo", B = 1:3)
-  gt <- ggtibble(
-    d_plot, ggplot2::aes(x = B, y = B),
-    outercols = "A", caption = "Cap {A}",
-    panel_caption = NULL
-  ) +
-    ggforce::facet_wrap_paginate(~ B, ncol = 1, nrow = 1)
-  result <- expand_captions_for_pages(gt)
-  expect_length(result, 3)
-  expect_identical(unique(result), "Cap foo")
-})
-
-test_that("panel_caption is configurable", {
-  skip_if_not_installed("ggforce")
-  d_plot <- data.frame(A = "foo", B = 1:2)
-  gt <- ggtibble(
-    d_plot, ggplot2::aes(x = B, y = B),
-    outercols = "A", caption = "Cap {A}",
-    panel_caption = " [p.{page}/{n_pages}]"
-  ) +
-    ggforce::facet_wrap_paginate(~ B, ncol = 1, nrow = 1)
-  result <- expand_captions_for_pages(gt)
-  expect_length(result, 2)
-  expect_identical(result, c("Cap foo [p.1/2]", "Cap foo [p.2/2]"))
-})
-
-# new_ggtibble preserves panel_caption ####
-
-test_that("new_ggtibble stores a default panel_caption attribute when missing", {
-  d <- tibble::tibble(figure = list(ggplot2::ggplot()), caption = "x")
-  result <- new_ggtibble(d)
-  expect_identical(attr(result, "panel_caption"), " (panel {page} of {n_pages})")
-})
-
-test_that("new_ggtibble preserves an explicit panel_caption argument", {
-  d <- tibble::tibble(figure = list(ggplot2::ggplot()), caption = "x")
-  result <- new_ggtibble(d, panel_caption = NULL)
-  expect_null(attr(result, "panel_caption"))
+  expect_length(result, 6)
+  expect_match(result[1], "^Cap foo \\(panel 1 of 3\\)$")
+  expect_match(result[3], "^Cap foo \\(panel 3 of 3\\)$")
+  expect_match(result[4], "^Cap bar \\(panel 1 of 3\\)$")
 })

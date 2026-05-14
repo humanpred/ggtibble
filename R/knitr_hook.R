@@ -99,12 +99,12 @@ expand_captions_for_pages <- function(obj) {
   if (all(page_counts == 1L)) {
     return(caps)
   }
-  panel_tpl <- attr(obj, "panel_caption", exact = TRUE)
+  panel_tpl <- " (panel {page} of {n_pages})"
   unlist(lapply(seq_along(caps), function(i) {
     n <- page_counts[i]
     cap <- caps[[i]]
-    if (n == 1L || is.null(panel_tpl) || !nzchar(panel_tpl)) {
-      return(rep(cap, n))
+    if (n == 1L) {
+      return(cap)
     }
     suffixes <- vapply(seq_len(n), function(p) {
       as.character(glue::glue(panel_tpl, page = p, n_pages = n))

@@ -4,16 +4,11 @@
 \alias{new_ggtibble}
 \title{Create a new \code{ggtibble} object}
 \usage{
-new_ggtibble(x, panel_caption)
+new_ggtibble(x)
 }
 \arguments{
 \item{x}{A data.frame with a column named "figure" and "caption", and where
 the "figure" column is a ggtibble.}
-
-\item{panel_caption}{A glue template appended to each caption when a row's
-figure renders as multiple pages.  See \code{\link[=ggtibble]{ggtibble()}} for details.  If
-omitted, any existing \code{panel_caption} attribute on \code{x} is preserved (and
-defaulted otherwise).}
 }
 \value{
 The object with a ggtibble class
