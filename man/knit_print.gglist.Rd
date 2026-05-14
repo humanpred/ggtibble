@@ -31,12 +31,6 @@ is searched for and if found, then the filename will be generated using that
 \code{sprintf()} must be met; for example, if you want a percent sign ("\%") in the
 filename, it must be doubled so that sprintf returns what is desired.
 }
-\details{
-When an element of \code{x} uses \code{ggforce::facet_wrap_paginate()} or
-\code{ggforce::facet_grid_paginate()}, every page is rendered.  Each per-element
-\code{filename} value should contain its own \verb{\%d} sprintf pattern so the inner
-\code{\link[=knit_print.gg]{knit_print.gg()}} call can write one file per page.
-}
 \section{Functions}{
 \itemize{
 \item \code{knit_print(ggtibble)}: Print the plots in a \code{ggtibble} object

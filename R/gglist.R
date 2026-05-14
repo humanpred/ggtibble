@@ -51,9 +51,7 @@ format.gglist <- function(x, ...) {
 #' @export
 print.gglist <- function(x, ...) {
   for (idx in seq_along(x)) {
-    for (page in as_gglist(x[[idx]])) {
-      print(page, ...)
-    }
+    print(x[[idx]], ...)
   }
   invisible(x)
 }
@@ -138,11 +136,6 @@ knitr::knit_print
 #' `sprintf()` must be met; for example, if you want a percent sign ("%") in the
 #' filename, it must be doubled so that sprintf returns what is desired.
 #'
-#' When an element of `x` uses `ggforce::facet_wrap_paginate()` or
-#' `ggforce::facet_grid_paginate()`, every page is rendered.  Each per-element
-#' `filename` value should contain its own `%d` sprintf pattern so the inner
-#' [knit_print.gg()] call can write one file per page.
-#'
 #' @param x The gglist object
 #' @param ... extra arguments to `knit_print()`
 #' @param filename A filename with an optional "%d" sprintf pattern for saving
@@ -179,11 +172,6 @@ knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = "\n\n") {
 
 #' Print a ggplot (usually within knit_print.gglist)
 #'
-#' When `x` uses `ggforce::facet_wrap_paginate()` or
-#' `ggforce::facet_grid_paginate()`, every page is rendered.  If `filename` is
-#' supplied for a paginated plot it must either be length 1 with a `%d`
-#' sprintf pattern, or length equal to the total number of pages.
-#'
 #' @param x The gg object (i.e. a ggplot)
 #' @param ... Ignored
 #' @param filename A filename saving the plot
@@ -194,24 +182,20 @@ knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = "\n\n") {
 #' @family knitters
 #' @export
 knit_print.gg <- function(x, ..., fig_prefix, fig_suffix, filename = NULL, width = 6, height = 4, units = "in") {
-  pages <- as_gglist(x)
-  filename_list <- expand_filenames(filename, length(pages))
-  for (i in seq_along(pages)) {
-    cat("\n\n")
-    if (!missing(fig_prefix)) {
-      cat(fig_prefix)
-    }
-    print(pages[[i]], ...)
-    if (!is.null(filename_list[[i]])) {
-      ggplot2::ggsave(
-        filename = filename_list[[i]], plot = pages[[i]], width = width,
-        height = height, units = units
-      )
-    }
-    if (!missing(fig_suffix)) {
-      cat(fig_suffix)
-    }
-    cat("\n\n")
+  cat("\n\n")
+  if (!missing(fig_prefix)) {
+    cat(fig_prefix)
   }
+  print(x, ...)
+  if (!is.null(filename)) {
+    ggplot2::ggsave(
+      filename = filename, plot = x, width = width,
+      height = height, units = units
+    )
+  }
+  if (!missing(fig_suffix)) {
+    cat(fig_suffix)
+  }
+  cat("\n\n")
   invisible(x)
 }

@@ -36,10 +36,7 @@ arguments are expressed: \code{"in"}, \code{"cm"}, \code{"mm"} or \code{"px"}.}
 The gg object, invisibly
 }
 \description{
-When \code{x} uses \code{ggforce::facet_wrap_paginate()} or
-\code{ggforce::facet_grid_paginate()}, every page is rendered.  If \code{filename} is
-supplied for a paginated plot it must either be length 1 with a \verb{\%d}
-sprintf pattern, or length equal to the total number of pages.
+Print a ggplot (usually within knit_print.gglist)
 }
 \seealso{
 Other knitters:

@@ -3,14 +3,15 @@
 #' Promotes an input value to a `gglist`.  When the input includes a `gg`
 #' object that uses `ggforce::facet_wrap_paginate()` or
 #' `ggforce::facet_grid_paginate()`, the paginated plot is expanded into one
-#' `gglist` element per rendered page.  All page-counting logic lives here;
-#' the render methods call `as_gglist()` rather than handling pagination
-#' directly.
+#' `gglist` element per rendered page so subsequent calls to `print()`,
+#' `knit_print()`, or `ggsave()` render every page.  Inputs that already
+#' use a non-paginated facet (or no facet at all) pass through unchanged.
 #'
 #' For an input that is already a `gglist`, the value is returned unchanged
-#' so the method is a no-op when nothing needs to be coerced or expanded.
-#' Re-applying `as_gglist()` to a `gglist` is therefore always safe and
-#' idempotent.
+#' so the method is a no-op when nothing needs to be coerced.  Call this
+#' yourself before rendering when you want paginated facets expanded — the
+#' render methods do not call it implicitly because page expansion is not
+#' always desired.
 #'
 #' @param x A `gg`, `gglist`, list of `gg` objects, `NULL`, or `labels`
 #'   object to convert.
@@ -21,7 +22,6 @@
 #' as_gglist(p)
 #' @export
 as_gglist <- function(x, ...) {
-  if (is.null(x)) return(new_gglist(list(NULL)))
   UseMethod("as_gglist")
 }
 
@@ -56,4 +56,10 @@ as_gglist.gglist <- function(x, ...) {
 #' @export
 as_gglist.labels <- function(x, ...) {
   new_gglist(list(x))
+}
+
+#' @method as_gglist NULL
+#' @export
+`as_gglist.NULL` <- function(x, ...) {
+  new_gglist(list(NULL))
 }

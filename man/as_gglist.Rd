@@ -19,15 +19,16 @@ A \code{gglist} object.
 Promotes an input value to a \code{gglist}.  When the input includes a \code{gg}
 object that uses \code{ggforce::facet_wrap_paginate()} or
 \code{ggforce::facet_grid_paginate()}, the paginated plot is expanded into one
-\code{gglist} element per rendered page.  All page-counting logic lives here;
-the render methods call \code{as_gglist()} rather than handling pagination
-directly.
+\code{gglist} element per rendered page so subsequent calls to \code{print()},
+\code{knit_print()}, or \code{ggsave()} render every page.  Inputs that already
+use a non-paginated facet (or no facet at all) pass through unchanged.
 }
 \details{
 For an input that is already a \code{gglist}, the value is returned unchanged
-so the method is a no-op when nothing needs to be coerced or expanded.
-Re-applying \code{as_gglist()} to a \code{gglist} is therefore always safe and
-idempotent.
+so the method is a no-op when nothing needs to be coerced.  Call this
+yourself before rendering when you want paginated facets expanded — the
+render methods do not call it implicitly because page expansion is not
+always desired.
 }
 \examples{
 p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()

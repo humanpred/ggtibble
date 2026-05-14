@@ -1,4 +1,4 @@
-# Internal helpers for handling ggforce paginated facets.
+# Internal helpers used by `as_gglist()` to expand ggforce paginated facets.
 
 is_paginated <- function(plot) {
   inherits(plot, "gg") &&
@@ -28,32 +28,4 @@ gg_to_pages <- function(plot) {
     p$facet$params$page <- i
     p
   })
-}
-
-expand_filenames <- function(filename, pages_per_plot) {
-  n_total <- sum(pages_per_plot)
-  n_logical <- length(pages_per_plot)
-  if (is.null(filename)) {
-    return(rep(list(NULL), n_total))
-  }
-  if (length(filename) == n_total) {
-    return(as.list(filename))
-  }
-  if (length(filename) == 1 && grepl(x = filename, pattern = "%[0-9]*d")) {
-    return(as.list(sprintf(filename, seq_len(n_total))))
-  }
-  if (length(filename) == n_logical && all(grepl(x = filename, pattern = "%[0-9]*d"))) {
-    out <- unlist(
-      lapply(seq_along(filename), function(i) {
-        sprintf(filename[i], seq_len(pages_per_plot[i]))
-      })
-    )
-    return(as.list(out))
-  }
-  stop(
-    "`filename` must be NULL, length 1 with a `%d` sprintf pattern, ",
-    "length equal to the number of logical plots (", n_logical,
-    ") with each containing a `%d` pattern when pagination is used, ",
-    "or length equal to the total number of rendered pages (", n_total, ")"
-  )
 }
