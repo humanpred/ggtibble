@@ -136,11 +136,30 @@ knitr::knit_print
 #' `sprintf()` must be met; for example, if you want a percent sign ("%") in the
 #' filename, it must be doubled so that sprintf returns what is desired.
 #'
+#' When `length(x)` exceeds `float_barrier_after` and the output format is
+#' LaTeX (as detected by `knitr::is_latex_output()`), `fig_suffix` defaults to
+#' `"\n\n\\FloatBarrier\n\n"` instead of the usual `"\n\n"`.  This avoids the
+#' LaTeX "Output loop---100 consecutive dead cycles" error that occurs when
+#' the float queue (default capacity ~18) overflows.  `\FloatBarrier` is
+#' provided by the `placeins` LaTeX package, which is *not* loaded by default
+#' in `rmarkdown::pdf_document`; add `\usepackage{placeins}` to the document
+#' preamble (e.g. via `header-includes` in the YAML) when relying on the
+#' auto-suffix.  Pass `fig_suffix` explicitly to override, or set
+#' `float_barrier_after = Inf` to disable the auto-suffix entirely.
+#'
 #' @param x The gglist object
 #' @param ... extra arguments to `knit_print()`
 #' @param filename A filename with an optional "%d" sprintf pattern for saving
 #'   the plots
-#' @param fig_suffix Any text to add after the figure
+#' @param fig_suffix Any text to add after the figure.  Defaults to `NULL`,
+#'   which means "auto-select": `"\n\n\\FloatBarrier\n\n"` for LaTeX output
+#'   when `length(x) > float_barrier_after`, otherwise `"\n\n"`.
+#' @param float_barrier_after Numeric threshold for emitting `\FloatBarrier`
+#'   between figures in LaTeX output.  When `length(x) > float_barrier_after`
+#'   and `knitr::is_latex_output()` is `TRUE` and the user did not supply
+#'   `fig_suffix`, `fig_suffix` defaults to `"\n\n\\FloatBarrier\n\n"`.  Has
+#'   no effect on non-LaTeX output.  Set to `Inf` to disable.  Defaults to
+#'   `10`.
 #' @return The list, invisibly
 #' @family knitters
 #' @examples
@@ -154,7 +173,14 @@ knitr::knit_print
 #'   ggplot2::geom_point()
 #' knit_print(p, fig_suffix = "\n\n\\FloatBarrier\n\n")
 #' @export
-knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = "\n\n") {
+knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = NULL, float_barrier_after = 10) {
+  checkmate::assert_number(float_barrier_after, lower = 0, na.ok = FALSE)
+  if (is.null(fig_suffix)) {
+    fig_suffix <- "\n\n"
+    if (length(x) > float_barrier_after && knitr::is_latex_output()) {
+      fig_suffix <- "\n\n\\FloatBarrier\n\n"
+    }
+  }
   if (!is.null(filename)) {
     if (length(filename) == length(x)) {
       # do nothing

@@ -129,6 +129,64 @@ test_that("knit_print.gg", {
   expect_output(knit_print(p, fig_suffix = "suffix"), "suffix")
 })
 
+# knit_print.gglist LaTeX float-barrier behavior (issue #27) ####
+
+test_that("knit_print.gglist auto-emits FloatBarrier when many plots in LaTeX", {
+  many <- new_gglist(replicate(11, ggplot2::ggplot(environment = emptyenv()), simplify = FALSE))
+  testthat::local_mocked_bindings(is_latex_output = function() TRUE, .package = "knitr")
+  expect_output(knit_print(many), "\\FloatBarrier", fixed = TRUE)
+})
+
+test_that("knit_print.gglist does not emit FloatBarrier at or below the threshold", {
+  ten <- new_gglist(replicate(10, ggplot2::ggplot(environment = emptyenv()), simplify = FALSE))
+  testthat::local_mocked_bindings(is_latex_output = function() TRUE, .package = "knitr")
+  out <- capture.output(knit_print(ten))
+  expect_false(any(grepl("FloatBarrier", out, fixed = TRUE)))
+})
+
+test_that("knit_print.gglist does not emit FloatBarrier in non-LaTeX output", {
+  many <- new_gglist(replicate(11, ggplot2::ggplot(environment = emptyenv()), simplify = FALSE))
+  testthat::local_mocked_bindings(is_latex_output = function() FALSE, .package = "knitr")
+  out <- capture.output(knit_print(many))
+  expect_false(any(grepl("FloatBarrier", out, fixed = TRUE)))
+})
+
+test_that("user-supplied fig_suffix overrides the auto FloatBarrier", {
+  many <- new_gglist(replicate(11, ggplot2::ggplot(environment = emptyenv()), simplify = FALSE))
+  testthat::local_mocked_bindings(is_latex_output = function() TRUE, .package = "knitr")
+  out <- capture.output(knit_print(many, fig_suffix = "USER_SUFFIX"))
+  expect_false(any(grepl("FloatBarrier", out, fixed = TRUE)))
+  expect_true(any(grepl("USER_SUFFIX", out, fixed = TRUE)))
+})
+
+test_that("float_barrier_after = Inf disables the auto FloatBarrier", {
+  many <- new_gglist(replicate(11, ggplot2::ggplot(environment = emptyenv()), simplify = FALSE))
+  testthat::local_mocked_bindings(is_latex_output = function() TRUE, .package = "knitr")
+  out <- capture.output(knit_print(many, float_barrier_after = Inf))
+  expect_false(any(grepl("FloatBarrier", out, fixed = TRUE)))
+})
+
+test_that("float_barrier_after rejects invalid values", {
+  one <- new_gglist(list(ggplot2::ggplot(environment = emptyenv())))
+  expect_error(knit_print(one, float_barrier_after = -1))
+  expect_error(knit_print(one, float_barrier_after = NA))
+  expect_error(knit_print(one, float_barrier_after = c(1, 2)))
+  expect_error(knit_print(one, float_barrier_after = "10"))
+})
+
+test_that("knit_print.ggtibble inherits LaTeX float-barrier behavior", {
+  d_plot <- data.frame(A = 1:11, B = 1:11, C = 1:11)
+  gt <- ggtibble(
+    d_plot,
+    ggplot2::aes(x = B, y = C),
+    outercols = "A",
+    caption = "{A}"
+  )
+  expect_equal(nrow(gt), 11)
+  testthat::local_mocked_bindings(is_latex_output = function() TRUE, .package = "knitr")
+  expect_output(knit_print(gt), "\\FloatBarrier", fixed = TRUE)
+})
+
 # Trivial tests for 100% coverage ####
 
 test_that("gglist trivial", {
