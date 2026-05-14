@@ -22,7 +22,9 @@
 
 \item{fig_prefix}{Text to \code{cat()} before the figure is printed}
 
-\item{fig_suffix}{Any text to add after the figure}
+\item{fig_suffix}{Any text to add after the figure.  Defaults to \code{NULL},
+which means "auto-select": \code{"\\n\\n\\\\FloatBarrier\\n\\n"} for LaTeX output
+when \code{length(x) > float_barrier_after}, otherwise \code{"\\n\\n"}.}
 
 \item{filename}{A filename saving the plot}
 

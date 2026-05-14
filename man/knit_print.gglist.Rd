@@ -5,7 +5,13 @@
 \alias{knit_print.ggtibble}
 \title{Print a list of plots made by gglist}
 \usage{
-\method{knit_print}{gglist}(x, ..., filename = NULL, fig_suffix = "\\n\\n")
+\method{knit_print}{gglist}(
+  x,
+  ...,
+  filename = NULL,
+  fig_suffix = NULL,
+  float_barrier_after = 10
+)
 
 \method{knit_print}{ggtibble}(x, ...)
 }
@@ -17,7 +23,16 @@
 \item{filename}{A filename with an optional "\%d" sprintf pattern for saving
 the plots}
 
-\item{fig_suffix}{Any text to add after the figure}
+\item{fig_suffix}{Any text to add after the figure.  Defaults to \code{NULL},
+which means "auto-select": \code{"\\n\\n\\\\FloatBarrier\\n\\n"} for LaTeX output
+when \code{length(x) > float_barrier_after}, otherwise \code{"\\n\\n"}.}
+
+\item{float_barrier_after}{Numeric threshold for emitting \verb{\\FloatBarrier}
+between figures in LaTeX output.  When \code{length(x) > float_barrier_after}
+and \code{knitr::is_latex_output()} is \code{TRUE} and the user did not supply
+\code{fig_suffix}, \code{fig_suffix} defaults to \code{"\\n\\n\\\\FloatBarrier\\n\\n"}.  Has
+no effect on non-LaTeX output.  Set to \code{Inf} to disable.  Defaults to
+\code{10}.}
 }
 \value{
 The list, invisibly
@@ -30,6 +45,18 @@ is searched for and if found, then the filename will be generated using that
 \code{sprintf()} format.  Note that also means that other requirements for
 \code{sprintf()} must be met; for example, if you want a percent sign ("\%") in the
 filename, it must be doubled so that sprintf returns what is desired.
+}
+\details{
+When \code{length(x)} exceeds \code{float_barrier_after} and the output format is
+LaTeX (as detected by \code{knitr::is_latex_output()}), \code{fig_suffix} defaults to
+\code{"\\n\\n\\\\FloatBarrier\\n\\n"} instead of the usual \code{"\\n\\n"}.  This avoids the
+LaTeX "Output loop---100 consecutive dead cycles" error that occurs when
+the float queue (default capacity ~18) overflows.  \verb{\\FloatBarrier} is
+provided by the \code{placeins} LaTeX package, which is \emph{not} loaded by default
+in \code{rmarkdown::pdf_document}; add \verb{\\usepackage\{placeins\}} to the document
+preamble (e.g. via \code{header-includes} in the YAML) when relying on the
+auto-suffix.  Pass \code{fig_suffix} explicitly to override, or set
+\code{float_barrier_after = Inf} to disable the auto-suffix entirely.
 }
 \section{Functions}{
 \itemize{
