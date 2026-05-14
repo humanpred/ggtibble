@@ -33,9 +33,9 @@ filename, it must be doubled so that sprintf returns what is desired.
 }
 \details{
 When an element of \code{x} uses \code{ggforce::facet_wrap_paginate()} or
-\code{ggforce::facet_grid_paginate()}, every page is rendered.  The \code{filename}
-length (when not using the \verb{\%d} sprintf form) must match the total number of
-rendered pages, which may exceed \code{length(x)}.
+\code{ggforce::facet_grid_paginate()}, every page is rendered.  Each per-element
+\code{filename} value should contain its own \verb{\%d} sprintf pattern so the inner
+\code{\link[=knit_print.gg]{knit_print.gg()}} call can write one file per page.
 }
 \section{Functions}{
 \itemize{

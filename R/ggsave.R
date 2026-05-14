@@ -37,16 +37,14 @@ ggsave.gglist <- function(filename,
                           bg = NULL,
                           create.dir = FALSE,
                           ...) {
-  pages_per_plot <- vapply(seq_along(plot), function(i) n_pages_for_plot(plot[[i]]), integer(1))
+  per_elt <- lapply(seq_along(plot), function(i) as_gglist(plot[[i]]))
+  pages_per_plot <- vapply(per_elt, length, integer(1))
   filename_list <- expand_filenames(filename, pages_per_plot)
   filenames_chr <- vapply(filename_list, identity, character(1))
   if (any(duplicated(filenames_chr))) {
     stop("Each `filename` must be unique")
   }
-  expanded_plots <- unlist(
-    lapply(seq_along(plot), function(i) gg_to_pages(plot[[i]])),
-    recursive = FALSE
-  )
+  expanded_plots <- unlist(lapply(per_elt, function(g) unclass(g)), recursive = FALSE)
   ret <-
     vapply(
       X = seq_along(expanded_plots),

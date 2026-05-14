@@ -95,7 +95,7 @@ process_ggtibble_chunk_options <- function(options, envir) {
 expand_captions_for_pages <- function(obj) {
   caps <- obj$caption
   figures <- obj$figure
-  page_counts <- vapply(seq_along(figures), function(i) n_pages_for_plot(figures[[i]]), integer(1))
+  page_counts <- vapply(seq_along(figures), function(i) length(as_gglist(figures[[i]])), integer(1))
   if (all(page_counts == 1L)) {
     return(caps)
   }

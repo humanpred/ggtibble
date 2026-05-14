@@ -101,9 +101,15 @@ test_that("as_gglist.gg wraps a single non-paginated plot in a gglist", {
   expect_length(result, 1)
 })
 
-test_that("as_gglist.gg does not expand paginated plots (pure coercion)", {
+test_that("as_gglist.gg expands paginated plots", {
   skip_if_not_installed("ggforce")
   result <- as_gglist(make_paginated_plot())
+  expect_s3_class(result, "gglist")
+  expect_length(result, 3)
+})
+
+test_that("as_gglist.gg wraps non-paginated plot as length-1 gglist", {
+  result <- as_gglist(make_plain_plot())
   expect_s3_class(result, "gglist")
   expect_length(result, 1)
 })
@@ -114,19 +120,14 @@ test_that("as_gglist.list works with a list of plain plots", {
   expect_length(result, 2)
 })
 
-test_that("as_gglist.list preserves length when elements are paginated", {
+test_that("as_gglist.list expands paginated elements inline", {
   skip_if_not_installed("ggforce")
   result <- as_gglist(list(make_plain_plot(), make_paginated_plot()))
   expect_s3_class(result, "gglist")
-  expect_length(result, 2)
+  expect_length(result, 4)
 })
 
-test_that("as_gglist.gglist is identity (idempotent for non-paginated input)", {
-  g <- new_gglist(list(make_plain_plot(), make_plain_plot()))
-  expect_identical(as_gglist(g), g)
-})
-
-test_that("as_gglist.gglist is identity (idempotent for paginated input)", {
+test_that("as_gglist.gglist is identity even when elements are paginated", {
   skip_if_not_installed("ggforce")
   g <- new_gglist(list(make_plain_plot(), make_paginated_plot()))
   expect_identical(as_gglist(g), g)

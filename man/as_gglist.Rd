@@ -7,7 +7,8 @@
 as_gglist(x, ...)
 }
 \arguments{
-\item{x}{A \code{gg}, \code{gglist}, or list of \code{gg} objects to convert.}
+\item{x}{A \code{gg}, \code{gglist}, list of \code{gg} objects, \code{NULL}, or \code{labels}
+object to convert.}
 
 \item{...}{Not used.}
 }
@@ -15,18 +16,18 @@ as_gglist(x, ...)
 A \code{gglist} object.
 }
 \description{
-Promotes an input value to a \code{gglist}.  This is a pure type coercion
-generic: a single \code{gg} becomes a length-1 \code{gglist}, a list of plots
-becomes a \code{gglist} wrapping that list, and an input that is already a
-\code{gglist} is returned unchanged.
+Promotes an input value to a \code{gglist}.  When the input includes a \code{gg}
+object that uses \code{ggforce::facet_wrap_paginate()} or
+\code{ggforce::facet_grid_paginate()}, the paginated plot is expanded into one
+\code{gglist} element per rendered page.  All page-counting logic lives here;
+the render methods call \code{as_gglist()} rather than handling pagination
+directly.
 }
 \details{
-Page expansion for \code{ggforce::facet_wrap_paginate()} /
-\code{ggforce::facet_grid_paginate()} is handled at render time by
-\code{\link[=print.gglist]{print.gglist()}}, \code{\link[=knit_print.gglist]{knit_print.gglist()}}, and \code{\link[=ggsave.gglist]{ggsave.gglist()}} — it is
-not the job of \code{as_gglist()}.  Keeping the two concerns separate makes
-\code{as_gglist()} idempotent and preserves the logical length of a gglist
-(so \verb{vec_arith.gglist.*} length-matching keeps working).
+For an input that is already a \code{gglist}, the value is returned unchanged
+so the method is a no-op when nothing needs to be coerced or expanded.
+Re-applying \code{as_gglist()} to a \code{gglist} is therefore always safe and
+idempotent.
 }
 \examples{
 p <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) + ggplot2::geom_point()
