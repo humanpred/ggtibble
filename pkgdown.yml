@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   v01-introduction: v01-introduction.html
-last_built: 2026-05-13T21:12Z
+last_built: 2026-05-14T17:34Z
 urls:
   reference: https://humanpred.github.io/ggtibble/reference
   article: https://humanpred.github.io/ggtibble/articles

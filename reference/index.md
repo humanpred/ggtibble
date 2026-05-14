@@ -2,6 +2,11 @@
 
 ## All functions
 
+- [`as_gglist()`](https://humanpred.github.io/ggtibble/reference/as_gglist.md)
+  :
+
+  Convert an object to a `gglist`
+
 - [`extract_glue_expr()`](https://humanpred.github.io/ggtibble/reference/extract_glue_expr.md)
   :
 
