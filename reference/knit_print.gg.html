@@ -73,7 +73,9 @@
 
 
 <dt id="arg-fig-suffix">fig_suffix<a class="anchor" aria-label="anchor" href="#arg-fig-suffix"></a></dt>
-<dd><p>Any text to add after the figure</p></dd>
+<dd><p>Any text to add after the figure.  Defaults to <code>NULL</code>,
+which means "auto-select": <code>"\n\n\\FloatBarrier\n\n"</code> for LaTeX output
+when <code>length(x) &gt; float_barrier_after</code>, otherwise <code>"\n\n"</code>.</p></dd>
 
 
 <dt id="arg-filename">filename<a class="anchor" aria-label="anchor" href="#arg-filename"></a></dt>

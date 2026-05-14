@@ -2,6 +2,13 @@
 
 ## ggtibble 1.0.2.9000
 
+- [`knit_print.gglist()`](https://humanpred.github.io/ggtibble/reference/knit_print.gglist.md)
+  automatically inserts `\FloatBarrier` between figures when more than
+  10 plots are rendered to LaTeX, avoiding the LaTeX “Output loop—100
+  consecutive dead cycles” error. The threshold is configurable via the
+  new `float_barrier_after` argument (default `10`; use `Inf` to
+  disable). Requires `\usepackage{placeins}` in the document preamble.
+  ([\#27](https://github.com/humanpred/ggtibble/issues/27))
 - New exported S3 generic
   [`as_gglist()`](https://humanpred.github.io/ggtibble/reference/as_gglist.md)
   (methods for `gg`, `list`, `gglist`, `labels`, and `NULL`) that

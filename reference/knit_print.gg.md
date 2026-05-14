@@ -35,7 +35,9 @@ knit_print(
 
 - fig_suffix:
 
-  Any text to add after the figure
+  Any text to add after the figure. Defaults to `NULL`, which means
+  "auto-select": `"\n\n\\FloatBarrier\n\n"` for LaTeX output when
+  `length(x) > float_barrier_after`, otherwise `"\n\n"`.
 
 - filename:
 

@@ -15,7 +15,13 @@ doubled so that sprintf returns what is desired.
 
 ``` r
 # S3 method for class 'gglist'
-knit_print(x, ..., filename = NULL, fig_suffix = "\n\n")
+knit_print(
+  x,
+  ...,
+  filename = NULL,
+  fig_suffix = NULL,
+  float_barrier_after = 10
+)
 
 # S3 method for class 'ggtibble'
 knit_print(x, ...)
@@ -38,11 +44,38 @@ knit_print(x, ...)
 
 - fig_suffix:
 
-  Any text to add after the figure
+  Any text to add after the figure. Defaults to `NULL`, which means
+  "auto-select": `"\n\n\\FloatBarrier\n\n"` for LaTeX output when
+  `length(x) > float_barrier_after`, otherwise `"\n\n"`.
+
+- float_barrier_after:
+
+  Numeric threshold for emitting `\FloatBarrier` between figures in
+  LaTeX output. When `length(x) > float_barrier_after` and
+  [`knitr::is_latex_output()`](https://rdrr.io/pkg/knitr/man/output_type.html)
+  is `TRUE` and the user did not supply `fig_suffix`, `fig_suffix`
+  defaults to `"\n\n\\FloatBarrier\n\n"`. Has no effect on non-LaTeX
+  output. Set to `Inf` to disable. Defaults to `10`.
 
 ## Value
 
 The list, invisibly
+
+## Details
+
+When `length(x)` exceeds `float_barrier_after` and the output format is
+LaTeX (as detected by
+[`knitr::is_latex_output()`](https://rdrr.io/pkg/knitr/man/output_type.html)),
+`fig_suffix` defaults to `"\n\n\\FloatBarrier\n\n"` instead of the usual
+`"\n\n"`. This avoids the LaTeX "Output loop—100 consecutive dead
+cycles" error that occurs when the float queue (default capacity ~18)
+overflows. `\FloatBarrier` is provided by the `placeins` LaTeX package,
+which is *not* loaded by default in
+[`rmarkdown::pdf_document`](https://pkgs.rstudio.com/rmarkdown/reference/pdf_document.html);
+add `\usepackage{placeins}` to the document preamble (e.g. via
+`header-includes` in the YAML) when relying on the auto-suffix. Pass
+`fig_suffix` explicitly to override, or set `float_barrier_after = Inf`
+to disable the auto-suffix entirely.
 
 ## Functions
 
