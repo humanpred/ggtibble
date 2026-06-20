@@ -33,8 +33,12 @@ new_gglist <- function(x = list()) {
   x_null <- vapply(X = x, FUN = is.null, FUN.VALUE = TRUE)
   x_gg <- vapply(X = x, FUN = inherits, "gg", FUN.VALUE = TRUE)
   x_labels <- vapply(X = x, FUN = inherits, "labels", FUN.VALUE = TRUE)
-  if (!all(x_null | x_gg | x_labels)) {
-    rlang::abort("the contents of 'x' must be NULL, a 'gg' (ggplot), or a 'labels' object")
+  # A `gglist` element is allowed so that a `gglist` may nest (a list of lists
+  # of plots).  Nested elements are handled transparently by the `+` broadcast
+  # and by `print()`/`plot()` because each dispatches back to the gglist method.
+  x_gglist <- vapply(X = x, FUN = inherits, "gglist", FUN.VALUE = TRUE)
+  if (!all(x_null | x_gg | x_labels | x_gglist)) {
+    rlang::abort("the contents of 'x' must be NULL, a 'gg' (ggplot), a 'labels' object, or a 'gglist'")
   }
   vctrs::new_vctr(x, class = "gglist")
 }
@@ -45,7 +49,20 @@ vec_ptype_abbr.gglist <- function(x, ...) {
 
 #' @export
 format.gglist <- function(x, ...) {
-  rep("A ggplot object", length(x))
+  vapply(
+    X = seq_along(x),
+    FUN = function(i) {
+      el <- x[[i]]
+      if (is.null(el)) {
+        "NULL"
+      } else if (inherits(el, "gglist")) {
+        paste0("A gglist (", length(el), ")")
+      } else {
+        "A ggplot object"
+      }
+    },
+    FUN.VALUE = ""
+  )
 }
 
 #' @export
@@ -54,6 +71,41 @@ print.gglist <- function(x, ...) {
     print(x[[idx]], ...)
   }
   invisible(x)
+}
+
+#' Plot a list of plots made by gglist
+#'
+#' Each element is rendered in order.  `NULL` elements render nothing (via the
+#' `plot.NULL()` method) and nested `gglist` elements recurse, so a `gglist` that
+#' contains other `gglist` objects (a list of lists of plots) renders every
+#' leaf plot.
+#'
+#' @param x The `gglist` object
+#' @param y Ignored; present to match the `plot()` generic
+#' @param ... Passed to each element's `plot()` method
+#' @return The `gglist`, invisibly
+#' @export
+plot.gglist <- function(x, y, ...) {
+  for (idx in seq_along(x)) {
+    plot(x[[idx]], ...)
+  }
+  invisible(x)
+}
+
+#' Plot a `NULL` object (render nothing)
+#'
+#' A `gglist` may contain `NULL` elements (for example a placeholder for a plot
+#' that was not generated).  Defining `plot.NULL()` lets those elements be
+#' rendered as a no-op instead of erroring.
+#'
+#' @param x `NULL`
+#' @param y Ignored; present to match the `plot()` generic
+#' @param ... Ignored
+#' @return `NULL`, invisibly
+#' @method plot NULL
+#' @export
+`plot.NULL` <- function(x, y, ...) {
+  invisible(NULL)
 }
 
 #' @export
@@ -73,33 +125,50 @@ vctrs::vec_arith
 vec_arith.gglist <- function(op, x, y, ...) {
   UseMethod("vec_arith.gglist", y)
 }
+
+# Add `y` to a single element of a gglist.  `NULL` elements are preserved as
+# `NULL` (rather than erroring), and a nested `gglist` element recurses through
+# the gglist `+` method so the operation is broadcast through the whole tree.
+.gglistAddOne <- function(el, y, op = "+") {
+  if (is.null(el)) {
+    NULL
+  } else if (identical(op, "%+%")) {
+    el %+% y
+  } else {
+    el + y
+  }
+}
+
+# Broadcast `y` over every element of the gglist `x`, preserving element names.
+.gglistBroadcast <- function(x, y, op = "+") {
+  new_gglist(stats::setNames(
+    lapply(seq_along(x), function(i) .gglistAddOne(x[[i]], y, op = op)),
+    names(x)
+  ))
+}
+
 #' @export
 #' @method vec_arith.gglist gglist
 vec_arith.gglist.gglist <- function(op, x, y, ...) {
   stopifnot(op == "+")
   stopifnot(length(y) %in% c(1, length(x)))
-  new_gglist(
-    mapply(FUN = "+", x, y, ..., SIMPLIFY = FALSE)
-  )
+  new_gglist(stats::setNames(
+    mapply(FUN = .gglistAddOne, x, y, SIMPLIFY = FALSE),
+    names(x)
+  ))
 }
 #' @export
 #' @method vec_arith.gglist list
 vec_arith.gglist.list <- function(op, x, y, ...) {
   stopifnot(op == "+")
-  ret <- x
-  for (idx in seq_along(ret)) {
-    # Add the entire list to each gglist object
-    ret[[idx]] <- ret[[idx]] + y
-  }
-  new_gglist(ret)
+  # Add the entire list to each gglist object (ggplot2 list-addition semantics)
+  .gglistBroadcast(x, y)
 }
 #' @export
 #' @method vec_arith.gglist gg
 vec_arith.gglist.gg <- function(op, x, y, ...) {
   stopifnot(op == "+")
-  new_gglist(
-    lapply(FUN = "+", X = x, y, ...)
-  )
+  .gglistBroadcast(x, y)
 }
 #' @export
 #' @method vec_arith.gglist labels
@@ -117,9 +186,7 @@ vec_arith.gglist.ggbreak_params <- vec_arith.gglist.gg # ggbreaks package
 #' @method vec_arith.gglist data.frame
 vec_arith.gglist.data.frame <-  function(op, x, y, ...) {
   stopifnot(op == "+")
-  new_gglist(
-    lapply(FUN = "%+%", X = x, y, ...)
-  )
+  .gglistBroadcast(x, y, op = "%+%")
 }
 
 #' @importFrom knitr knit_print
