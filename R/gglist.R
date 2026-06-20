@@ -129,7 +129,7 @@ vec_arith.gglist <- function(op, x, y, ...) {
 # Add `y` to a single element of a gglist.  `NULL` elements are preserved as
 # `NULL` (rather than erroring), and a nested `gglist` element recurses through
 # the gglist `+` method so the operation is broadcast through the whole tree.
-.gglistAddOne <- function(el, y, op = "+") {
+gglist_add_one <- function(el, y, op = "+") {
   if (is.null(el)) {
     NULL
   } else if (identical(op, "%+%")) {
@@ -140,9 +140,9 @@ vec_arith.gglist <- function(op, x, y, ...) {
 }
 
 # Broadcast `y` over every element of the gglist `x`, preserving element names.
-.gglistBroadcast <- function(x, y, op = "+") {
+gglist_broadcast <- function(x, y, op = "+") {
   new_gglist(stats::setNames(
-    lapply(seq_along(x), function(i) .gglistAddOne(x[[i]], y, op = op)),
+    lapply(seq_along(x), function(i) gglist_add_one(x[[i]], y, op = op)),
     names(x)
   ))
 }
@@ -153,7 +153,7 @@ vec_arith.gglist.gglist <- function(op, x, y, ...) {
   stopifnot(op == "+")
   stopifnot(length(y) %in% c(1, length(x)))
   new_gglist(stats::setNames(
-    mapply(FUN = .gglistAddOne, x, y, SIMPLIFY = FALSE),
+    mapply(FUN = gglist_add_one, x, y, SIMPLIFY = FALSE),
     names(x)
   ))
 }
@@ -162,13 +162,13 @@ vec_arith.gglist.gglist <- function(op, x, y, ...) {
 vec_arith.gglist.list <- function(op, x, y, ...) {
   stopifnot(op == "+")
   # Add the entire list to each gglist object (ggplot2 list-addition semantics)
-  .gglistBroadcast(x, y)
+  gglist_broadcast(x, y)
 }
 #' @export
 #' @method vec_arith.gglist gg
 vec_arith.gglist.gg <- function(op, x, y, ...) {
   stopifnot(op == "+")
-  .gglistBroadcast(x, y)
+  gglist_broadcast(x, y)
 }
 #' @export
 #' @method vec_arith.gglist labels
@@ -186,7 +186,7 @@ vec_arith.gglist.ggbreak_params <- vec_arith.gglist.gg # ggbreaks package
 #' @method vec_arith.gglist data.frame
 vec_arith.gglist.data.frame <-  function(op, x, y, ...) {
   stopifnot(op == "+")
-  .gglistBroadcast(x, y, op = "%+%")
+  gglist_broadcast(x, y, op = "%+%")
 }
 
 #' @importFrom knitr knit_print
