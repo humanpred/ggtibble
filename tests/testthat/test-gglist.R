@@ -115,7 +115,7 @@ test_that("new_gglist errors", {
   expect_error(new_gglist("A"), regexp = "`x` must be a list")
   expect_error(
     new_gglist(list("A")),
-    regexp = "the contents of 'x' must be NULL, a 'gg' (ggplot), or a 'labels' object",
+    regexp = "the contents of 'x' must be NULL, a 'gg' (ggplot), a 'labels' object, or a 'gglist'",
     fixed = TRUE
   )
 })

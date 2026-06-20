@@ -107,6 +107,12 @@ knit_print.ggtibble <- function(x, ...) {
   knit_print(x$figure, ...)
 }
 
+#' @describeIn plot.gglist Plot the figures in a `ggtibble` object
+#' @export
+plot.ggtibble <- function(x, y, ...) {
+  plot(x$figure, ...)
+}
+
 #' @export
 chooseOpsMethod.ggtibble <- function(x, y, mx, my, cl, reverse) {
   # Always use the ggtibble method (which will usually then pass to the gglist
