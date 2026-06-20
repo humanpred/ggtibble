@@ -1,6 +1,8 @@
 # Changelog
 
-## ggtibble 1.0.2.9000
+## ggtibble 1.0.3
+
+CRAN release: 2026-05-14
 
 - [`knit_print.gglist()`](https://humanpred.github.io/ggtibble/reference/knit_print.gglist.md)
   automatically inserts `\FloatBarrier` between figures when more than
