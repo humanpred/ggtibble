@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/humanpred/ggtibble/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/humanpred/ggtibble/blob/v1.0.3/DESCRIPTION)
 
 Denney B (2026). *ggtibble: Create Tibbles and Lists of 'ggplot' Figures
 for Reporting*. R package version 1.0.3,
