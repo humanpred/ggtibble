@@ -8,16 +8,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/humanpred/ggtibble/blob/v1.0.3/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/humanpred/ggtibble/blob/main/DESCRIPTION)
 
 Denney B (2026). *ggtibble: Create Tibbles and Lists of 'ggplot' Figures
-for Reporting*. R package version 1.0.3,
+for Reporting*. R package version 1.0.3.9000,
 <https://humanpred.github.io/ggtibble/>.
 
     @Manual{,
       title = {ggtibble: Create Tibbles and Lists of 'ggplot' Figures for Reporting},
       author = {Bill Denney},
       year = {2026},
-      note = {R package version 1.0.3},
+      note = {R package version 1.0.3.9000},
       url = {https://humanpred.github.io/ggtibble/},
     }

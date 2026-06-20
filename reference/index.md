@@ -7,6 +7,11 @@
 
   Convert an object to a `gglist`
 
+- [`as_ggtibble()`](https://humanpred.github.io/ggtibble/reference/as_ggtibble.md)
+  :
+
+  Convert an object to a `ggtibble`
+
 - [`extract_glue_expr()`](https://humanpred.github.io/ggtibble/reference/extract_glue_expr.md)
   :
 
@@ -47,3 +52,12 @@
   :
 
   Create a new `ggtibble` object
+
+- [`plot(`*`<NULL>`*`)`](https://humanpred.github.io/ggtibble/reference/plot.NULL.md)
+  :
+
+  Plot a `NULL` object (render nothing)
+
+- [`plot(`*`<gglist>`*`)`](https://humanpred.github.io/ggtibble/reference/plot.gglist.md)
+  [`plot(`*`<ggtibble>`*`)`](https://humanpred.github.io/ggtibble/reference/plot.gglist.md)
+  : Plot a list of plots made by gglist

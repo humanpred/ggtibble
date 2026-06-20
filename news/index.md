@@ -1,5 +1,29 @@
 # Changelog
 
+## ggtibble 1.0.3.9000
+
+- `gglist` objects may now nest: a `gglist` element of a `gglist` is
+  allowed, so a `gglist` can represent a list of lists of plots. The `+`
+  broadcast, [`print()`](https://rdrr.io/r/base/print.html), and the new
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method all
+  recurse through the nesting.
+- `gglist` element names are now preserved through the `+` broadcast
+  (they were previously dropped), in addition to construction and
+  subsetting. This makes name-indexed collections (`g[["my plot"]]`,
+  `names(g)`) reliable.
+- New [`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods
+  for `gglist` and `ggtibble`, plus a
+  [`plot.NULL()`](https://humanpred.github.io/ggtibble/reference/plot.NULL.md)
+  method so that `NULL` elements of a `gglist` render as a no-op instead
+  of erroring. The `+` broadcast is likewise `NULL`-safe (a `NULL`
+  element stays `NULL`).
+- New exported S3 generic
+  [`as_ggtibble()`](https://humanpred.github.io/ggtibble/reference/as_ggtibble.md)
+  with a `gglist` method that converts a named (and possibly nested)
+  `gglist` into a `ggtibble`, using the element names as captions.
+  Nesting is flattened and the outer name is prepended to each inner
+  name (e.g. `"All Data dv_pred_ipred_linear"`).
+
 ## ggtibble 1.0.3
 
 CRAN release: 2026-05-14

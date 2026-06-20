@@ -7,6 +7,7 @@
 <url><loc>https://humanpred.github.io/ggtibble/index.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/news/index.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/as_gglist.html</loc></url>
+<url><loc>https://humanpred.github.io/ggtibble/reference/as_ggtibble.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/extract_glue_expr.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/gglist.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/ggsave.html</loc></url>
@@ -19,6 +20,8 @@
 <url><loc>https://humanpred.github.io/ggtibble/reference/labs_glue.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/new_gglist.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/new_ggtibble.html</loc></url>
+<url><loc>https://humanpred.github.io/ggtibble/reference/plot.NULL.html</loc></url>
+<url><loc>https://humanpred.github.io/ggtibble/reference/plot.gglist.html</loc></url>
 <url><loc>https://humanpred.github.io/ggtibble/reference/reexports.html</loc></url>
 </urlset>
 
