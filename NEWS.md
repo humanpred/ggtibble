@@ -1,4 +1,4 @@
-# ggtibble 1.0.2.9000
+# ggtibble 1.0.3
 
 * `knit_print.gglist()` automatically inserts `\FloatBarrier` between
   figures when more than 10 plots are rendered to LaTeX, avoiding the
