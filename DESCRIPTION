@@ -1,6 +1,6 @@
 Package: ggtibble
 Title: Create Tibbles and Lists of 'ggplot' Figures for Reporting
-Version: 1.0.3.9000
+Version: 1.0.4
 Authors@R:
     person("Bill", "Denney", email="wdenney@humanpredictions.com", role=c("aut", "cre"), comment=c(ORCID="0000-0002-5759-428X"))
 Description:

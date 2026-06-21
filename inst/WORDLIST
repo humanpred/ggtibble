@@ -5,6 +5,7 @@ Tibbles
 bmp
 colour
 eps
+erroring
 geoms
 gg
 gglist
@@ -16,7 +17,8 @@ labelled
 pictex
 png
 ps
-renderable
+recurse
+recursing
 sprintf
 svg
 tex
