@@ -1,6 +1,6 @@
 # Changelog
 
-## ggtibble 1.0.3.9000
+## ggtibble 1.0.4
 
 - `gglist` objects may now nest: a `gglist` element of a `gglist` is
   allowed, so a `gglist` can represent a list of lists of plots. The `+`
