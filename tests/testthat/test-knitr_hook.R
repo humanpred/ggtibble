@@ -87,16 +87,6 @@ test_that("is_quarto_render reads QUARTO_VERSION", {
   })
 })
 
-test_that("is_quarto_render reads knitr's quarto.version package option", {
-  withr::local_envvar(c(QUARTO_VERSION = ""))
-  old <- knitr::opts_knit$get("quarto.version")
-  withr::defer(knitr::opts_knit$set(quarto.version = old))
-  knitr::opts_knit$set(quarto.version = numeric_version("1.9.37"))
-  expect_true(is_quarto_render())
-  knitr::opts_knit$set(quarto.version = NULL)
-  expect_false(is_quarto_render())
-})
-
 test_that("deduplicate_label suffixes repeats", {
   reset_ggtibble_caches()
   withr::defer(reset_ggtibble_caches())
@@ -488,4 +478,67 @@ test_that("Quarto renders a ggtibble chunk with a cross-referenceable figure", {
   expect_false(grepl("Unable to resolve crossref", html, fixed = TRUE))
   # The figure id should be set on the figure container
   expect_match(html, "fig-my_plots")
+})
+
+# Footnotes and labels ####
+
+test_that("annotated ggtibble: sets results='asis' and no fig.cap", {
+  reset_ggtibble_caches()
+  withr::defer(reset_ggtibble_caches())
+  envir <- new.env()
+  envir$my_obj <- make_test_ggtibble()
+  envir$my_obj$footnote <- c("Note 1", "Note 2")
+
+  result <- process_ggtibble_chunk_options(
+    list(ggtibble = "my_obj", label = "unnamed-chunk-1", results = "markup"),
+    envir = envir
+  )
+  expect_equal(result$label, "my_obj")
+  expect_equal(result$results, "asis")
+  expect_null(result$fig.cap)
+  expect_null(result$fig.subcap)
+})
+
+test_that("annotated ggtibble under Quarto: the chunk label has no fig- prefix", {
+  reset_ggtibble_caches()
+  withr::defer(reset_ggtibble_caches())
+  envir <- new.env()
+  envir$my_obj <- make_test_ggtibble()
+  envir$my_obj$label <- c("fig-a", "fig-b")
+
+  withr::with_envvar(c(QUARTO_VERSION = "1.5.0"), {
+    result <- process_ggtibble_chunk_options(
+      list(ggtibble = "my_obj", label = "unnamed-chunk-1", results = "markup"),
+      envir = envir
+    )
+  })
+  expect_equal(result$label, "my_obj")
+  expect_equal(result$results, "asis")
+  expect_null(result$fig.cap)
+  expect_null(result$fig.subcap)
+})
+
+test_that("annotated ggtibble with a chunk body keeps the user's results option", {
+  reset_ggtibble_caches()
+  withr::defer(reset_ggtibble_caches())
+  envir <- new.env()
+  envir$my_obj <- make_test_ggtibble()
+  envir$my_obj$footnote <- c("Note 1", "Note 2")
+
+  result <- process_ggtibble_chunk_options(
+    list(ggtibble = "my_obj", label = "unnamed-chunk-1", results = "markup", code = "knit_print(my_obj)"),
+    envir = envir
+  )
+  expect_equal(result$results, "markup")
+  expect_equal(result$code, "knit_print(my_obj)")
+})
+
+test_that("is_quarto_render reads knitr's quarto.version package option", {
+  withr::local_envvar(c(QUARTO_VERSION = ""))
+  old <- knitr::opts_knit$get("quarto.version")
+  withr::defer(knitr::opts_knit$set(quarto.version = old))
+  knitr::opts_knit$set(quarto.version = numeric_version("1.9.37"))
+  expect_true(is_quarto_render())
+  knitr::opts_knit$set(quarto.version = NULL)
+  expect_false(is_quarto_render())
 })

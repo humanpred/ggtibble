@@ -67,19 +67,27 @@ process_ggtibble_chunk_options <- function(options, envir) {
     )
   }
 
+  # Figures with footnotes or labels are written as markdown by
+  # knit_print.ggtibble(), each with its own id, so the chunk itself must not
+  # be a Quarto figure (no `fig-` label) and has no knitr figure caption.
+  annotated <- has_figure_annotations(obj)
+
   if (!is.null(obj_name) && is_unnamed_label(options$label)) {
-    base <- if (is_quarto_render()) paste0("fig-", obj_name) else obj_name
+    base <- if (is_quarto_render() && !annotated) paste0("fig-", obj_name) else obj_name
     options$label <- deduplicate_label(base)
   }
 
-  if (is_quarto_render() && length(obj$caption) > 1) {
-    if (is.null(options$fig.subcap)) options$fig.subcap <- obj$caption
-    if (is.null(options$fig.cap)) options$fig.cap <- ""
-  } else {
-    if (is.null(options$fig.cap)) options$fig.cap <- obj$caption
+  if (!annotated) {
+    if (is_quarto_render() && length(obj$caption) > 1) {
+      if (is.null(options$fig.subcap)) options$fig.subcap <- obj$caption
+      if (is.null(options$fig.cap)) options$fig.cap <- ""
+    } else {
+      if (is.null(options$fig.cap)) options$fig.cap <- obj$caption
+    }
   }
 
   if (is_empty_code(options$code)) {
+    if (annotated) options$results <- "asis"
     cache_key <- options$label
     assign(cache_key, obj, envir = .ggtibble_chunk_cache)
     options$code <- sprintf(

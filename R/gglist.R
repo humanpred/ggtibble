@@ -214,6 +214,41 @@ knitr::knit_print
 #' auto-suffix.  Pass `fig_suffix` explicitly to override, or set
 #' `float_barrier_after = Inf` to disable the auto-suffix entirely.
 #'
+#' @section Footnotes and labels:
+#'
+#' A `ggtibble` whose "footnote" or "label" column (see [ggtibble()]) is
+#' non-empty on any row is written by `knit_print()` as markdown: each figure
+#' is saved under the chunk's `fig.path` with the chunk's `dev`, `fig.width`,
+#' `fig.height`, and `dpi`, and written with its caption, its footnote, and its
+#' label as its identifier.  The chunk therefore needs `results = "asis"`; the
+#' `ggtibble` chunk option sets it, and calling `knit_print()` in a chunk
+#' without it is an error.  A `ggtibble` with no footnotes or labels renders
+#' through the knitr plot hook exactly as before.
+#'
+#' Markdown in captions and footnotes passes through to pandoc.  The footnote
+#' never separates from its figure:
+#'
+#' | Output | Figure | Footnote |
+#' |---|---|---|
+#' | LaTeX (R Markdown and Quarto) | A figure float with `\label{<label>}` | Inside the float, appended to the caption after a line break in `\footnotesize`; the short caption (for the List of Figures) is the plain caption |
+#' | Quarto to Typst | A figure Div | A paragraph in 0.9em text after the Div, with the Div, inside one unbreakable Typst block |
+#' | HTML | An image with its caption | A Div of class `figure-footnote` in a smaller font directly after the figure |
+#' | Word and other pandoc formats | An image with its caption | A plain paragraph directly after the figure |
+#' | knitr markdown without pandoc | An image with its caption, without an identifier | A plain paragraph directly after the figure |
+#'
+#' Under Quarto, a figure whose label starts with `fig-` is written as a
+#' figure Div so that `@<label>` cross-references resolve; other labels are
+#' kept as given, so start labels with `fig-` for Quarto cross-references.  A
+#' figure without a label is given the identifier `fig-<chunk label>` (with
+#' `-<row number>` for more than one row), so each figure of a multi-row
+#' ggtibble is its own numbered figure rather than a subfigure.  Do not give
+#' such a chunk a `fig-` label of its own; the `ggtibble` chunk option leaves
+#' it off.  In R Markdown to LaTeX, cross-reference a labelled figure with
+#' `\ref{<label>}`.
+#'
+#' A labelled figure's image file is named `<label>` with the device's
+#' extension; other figures use the knitr default `<chunk label>-<row number>`.
+#'
 #' @param x The gglist object
 #' @param ... extra arguments to `knit_print()`
 #' @param filename A filename with an optional "%d" sprintf pattern for saving
@@ -241,26 +276,47 @@ knitr::knit_print
 #' knit_print(p, fig_suffix = "\n\n\\FloatBarrier\n\n")
 #' @export
 knit_print.gglist <- function(x, ..., filename = NULL, fig_suffix = NULL, float_barrier_after = 10) {
-  checkmate::assert_number(float_barrier_after, lower = 0, na.ok = FALSE)
-  if (is.null(fig_suffix)) {
-    fig_suffix <- "\n\n"
-    if (length(x) > float_barrier_after && knitr::is_latex_output()) {
-      fig_suffix <- "\n\n\\FloatBarrier\n\n"
-    }
-  }
-  if (!is.null(filename)) {
-    if (length(filename) == length(x)) {
-      # do nothing
-    } else if (length(filename) == 1 && grepl(x = filename, pattern = "%[0-9]*d")) {
-      filename <- sprintf(filename, seq_along(x))
-    }
-  }
-  stopifnot("`filename` must be NULL, the same length as `x`, or an sprintf format" = is.null(filename) |
-    length(filename) == length(x))
+  fig_suffix <- resolve_fig_suffix(fig_suffix, n = length(x), float_barrier_after = float_barrier_after)
+  filename <- resolve_knit_filenames(filename, n = length(x))
   lapply(X = seq_along(x), FUN = function(idx) {
     knitr::knit_print(x = x[[idx]], ..., filename = filename[[idx]], fig_suffix = fig_suffix)
   })
   invisible(x)
+}
+
+#' Choose the text written after each of `n` figures
+#'
+#' @inheritParams knit_print.gglist
+#' @param n The number of figures
+#' @returns `fig_suffix` when given; otherwise `"\n\n"`, or
+#'   `"\n\n\\FloatBarrier\n\n"` for more than `float_barrier_after` figures in
+#'   LaTeX output
+#' @noRd
+resolve_fig_suffix <- function(fig_suffix, n, float_barrier_after) {
+  checkmate::assert_number(float_barrier_after, lower = 0, na.ok = FALSE)
+  if (is.null(fig_suffix)) {
+    fig_suffix <- "\n\n"
+    if (n > float_barrier_after && knitr::is_latex_output()) {
+      fig_suffix <- "\n\n\\FloatBarrier\n\n"
+    }
+  }
+  fig_suffix
+}
+
+#' Expand the `filename` argument of `knit_print()` to one file per figure
+#'
+#' @inheritParams knit_print.gglist
+#' @param n The number of figures
+#' @returns `NULL`, or a character vector of length `n`
+#' @noRd
+resolve_knit_filenames <- function(filename, n) {
+  if (!is.null(filename) && length(filename) == 1 && length(filename) != n &&
+      grepl(x = filename, pattern = "%[0-9]*d")) {
+    filename <- sprintf(filename, seq_len(n))
+  }
+  stopifnot("`filename` must be NULL, the same length as `x`, or an sprintf format" = is.null(filename) |
+    length(filename) == n)
+  filename
 }
 
 #' Print a ggplot (usually within knit_print.gglist)

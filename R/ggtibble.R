@@ -175,7 +175,11 @@ validate_ggtibble_labels <- function(label) {
 #' @describeIn knit_print.gglist Print the plots in a `ggtibble` object
 #' @export
 knit_print.ggtibble <- function(x, ...) {
-  knit_print(x$figure, ...)
+  if (has_figure_annotations(x)) {
+    knit_print_annotated(x, ...)
+  } else {
+    knit_print(x$figure, ...)
+  }
 }
 
 #' @describeIn plot.gglist Plot the figures in a `ggtibble` object
