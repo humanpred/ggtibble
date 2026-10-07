@@ -13,7 +13,8 @@
 #'   form the chunk label is not auto-derived; set `label = ...` explicitly if
 #'   you want a non-default label.
 #'
-#' Under Quarto (detected via the `QUARTO_VERSION` environment variable) the
+#' Under Quarto (detected via the knitr package option `quarto.version` or the
+#' `QUARTO_VERSION` environment variable) the
 #' auto-derived label is prefixed with `"fig-"` so `@fig-...` cross-references
 #' work, and a multi-caption ggtibble is rendered using `fig.subcap` because
 #' Quarto's cross-reference resolver does not handle vector `fig.cap` on a
@@ -114,8 +115,11 @@ is_empty_code <- function(code) {
   length(code) == 0 || all(trimws(paste(code, collapse = "")) == "")
 }
 
+# Quarto sets the knitr package option `quarto.version` (knitr's own internal
+# Quarto test reads it); older Quarto versions also set `QUARTO_VERSION`.
 is_quarto_render <- function() {
-  nzchar(Sys.getenv("QUARTO_VERSION", ""))
+  nzchar(Sys.getenv("QUARTO_VERSION", "")) ||
+    !is.null(knitr::opts_knit$get("quarto.version"))
 }
 
 deduplicate_label <- function(base) {

@@ -87,6 +87,16 @@ test_that("is_quarto_render reads QUARTO_VERSION", {
   })
 })
 
+test_that("is_quarto_render reads knitr's quarto.version package option", {
+  withr::local_envvar(c(QUARTO_VERSION = ""))
+  old <- knitr::opts_knit$get("quarto.version")
+  withr::defer(knitr::opts_knit$set(quarto.version = old))
+  knitr::opts_knit$set(quarto.version = numeric_version("1.9.37"))
+  expect_true(is_quarto_render())
+  knitr::opts_knit$set(quarto.version = NULL)
+  expect_false(is_quarto_render())
+})
+
 test_that("deduplicate_label suffixes repeats", {
   reset_ggtibble_caches()
   withr::defer(reset_ggtibble_caches())
