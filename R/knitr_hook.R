@@ -13,7 +13,8 @@
 #'   form the chunk label is not auto-derived; set `label = ...` explicitly if
 #'   you want a non-default label.
 #'
-#' Under Quarto (detected via the `QUARTO_VERSION` environment variable) the
+#' Under Quarto (detected via the knitr package option `quarto.version` or the
+#' `QUARTO_VERSION` environment variable) the
 #' auto-derived label is prefixed with `"fig-"` so `@fig-...` cross-references
 #' work, and a multi-caption ggtibble is rendered using `fig.subcap` because
 #' Quarto's cross-reference resolver does not handle vector `fig.cap` on a
@@ -27,6 +28,9 @@ NULL
 
 .ggtibble_chunk_cache <- new.env(parent = emptyenv())
 .ggtibble_label_cache <- new.env(parent = emptyenv())
+# Figure ids written so far in the document being knitted (see
+# register_document_ids())
+.ggtibble_id_cache <- new.env(parent = emptyenv())
 
 #' @rdname ggtibble-knitr-hook
 ggtibble_opts_hook <- function(options) {
@@ -66,19 +70,27 @@ process_ggtibble_chunk_options <- function(options, envir) {
     )
   }
 
+  # Figures with footnotes or labels are written as markdown by
+  # knit_print.ggtibble(), each with its own id, so the chunk itself must not
+  # be a Quarto figure (no `fig-` label) and has no knitr figure caption.
+  annotated <- has_figure_annotations(obj)
+
   if (!is.null(obj_name) && is_unnamed_label(options$label)) {
-    base <- if (is_quarto_render()) paste0("fig-", obj_name) else obj_name
+    base <- if (is_quarto_render() && !annotated) paste0("fig-", obj_name) else obj_name
     options$label <- deduplicate_label(base)
   }
 
-  if (is_quarto_render() && length(obj$caption) > 1) {
-    if (is.null(options$fig.subcap)) options$fig.subcap <- obj$caption
-    if (is.null(options$fig.cap)) options$fig.cap <- ""
-  } else {
-    if (is.null(options$fig.cap)) options$fig.cap <- obj$caption
+  if (!annotated) {
+    if (is_quarto_render() && length(obj$caption) > 1) {
+      if (is.null(options$fig.subcap)) options$fig.subcap <- obj$caption
+      if (is.null(options$fig.cap)) options$fig.cap <- ""
+    } else {
+      if (is.null(options$fig.cap)) options$fig.cap <- obj$caption
+    }
   }
 
   if (is_empty_code(options$code)) {
+    if (annotated) options$results <- "asis"
     cache_key <- options$label
     assign(cache_key, obj, envir = .ggtibble_chunk_cache)
     options$code <- sprintf(
@@ -114,8 +126,11 @@ is_empty_code <- function(code) {
   length(code) == 0 || all(trimws(paste(code, collapse = "")) == "")
 }
 
+# Quarto sets the knitr package option `quarto.version` (knitr's own internal
+# Quarto test reads it); older Quarto versions also set `QUARTO_VERSION`.
 is_quarto_render <- function() {
-  nzchar(Sys.getenv("QUARTO_VERSION", ""))
+  nzchar(Sys.getenv("QUARTO_VERSION", "")) ||
+    !is.null(knitr::opts_knit$get("quarto.version"))
 }
 
 deduplicate_label <- function(base) {
@@ -127,6 +142,7 @@ deduplicate_label <- function(base) {
 reset_ggtibble_caches <- function() {
   rm(list = ls(.ggtibble_chunk_cache, all.names = TRUE), envir = .ggtibble_chunk_cache)
   rm(list = ls(.ggtibble_label_cache, all.names = TRUE), envir = .ggtibble_label_cache)
+  rm(list = ls(.ggtibble_id_cache, all.names = TRUE), envir = .ggtibble_id_cache)
   invisible()
 }
 

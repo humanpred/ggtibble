@@ -63,6 +63,54 @@ auto-suffix.  Pass \code{fig_suffix} explicitly to override, or set
 \item \code{knit_print(ggtibble)}: Print the plots in a \code{ggtibble} object
 
 }}
+\section{Footnotes and labels}{
+
+
+A \code{ggtibble} whose "footnote" or "label" column (see \code{\link[=ggtibble]{ggtibble()}}) is
+non-empty on any row is written by \code{knit_print()} as markdown: each figure
+is saved as an image and written with its caption, its footnote, and its
+label as its identifier.  The chunk therefore needs \code{results = "asis"}; the
+\code{ggtibble} chunk option sets it, and calling \code{knit_print()} in a chunk
+without it is an error.  A \code{ggtibble} with no footnotes or labels renders
+through the knitr plot hook exactly as before.
+
+Of the chunk options, this route uses \code{fig.path}, \code{label}, \code{dev} (one of
+the common devices; others are an error), \code{fig.width}, \code{fig.height}, \code{dpi},
+and, for LaTeX, \code{fig.pos}.  It does not apply \code{out.width}, \code{out.height},
+\code{fig.align}, \code{fig.alt}, \code{fig.cap} (the captions come from the ggtibble), or
+\code{dev.args}.
+
+Captions and footnotes are markdown and pass through to pandoc: emphasis
+and links work, a footnote line starting with \verb{# } becomes a heading, and
+raw LaTeX reaches only LaTeX output (pandoc drops it elsewhere).  A caption
+is joined onto one line, and unbalanced square brackets in it are escaped.\tabular{llll}{
+   Output \tab Figure \tab Footnote \tab Kept with the figure \cr
+   LaTeX (R Markdown and Quarto) \tab A figure float with \verb{\\label\{<label>\}} \tab Inside the float, appended to the caption after a line break in \verb{\\footnotesize}; the short caption (for the List of Figures) is the plain caption \tab Yes, it is in the float \cr
+   Quarto to Typst \tab A figure Div \tab A paragraph in 0.9em text after the Div \tab Yes, the Div and footnote are one unbreakable Typst block \cr
+   HTML \tab An image with its caption \tab A Div of class \code{figure-footnote} in a smaller font directly after the figure \tab Not applicable (no pages) \cr
+   Word and other pandoc formats \tab An image with its caption \tab A plain paragraph, in the body text size, directly after the figure \tab No: Word may break the page between them \cr
+   knitr markdown without pandoc \tab An image with its caption, without an identifier \tab A plain paragraph directly after the figure \tab Not applicable \cr
+}
+
+
+Under Quarto, a figure whose label starts with \verb{fig-} is written as a
+figure Div so that \verb{@<label>} cross-references resolve; other labels are
+kept as given, with a warning of class \code{ggtibble_warning_label_not_fig},
+since Quarto reads \verb{@<label>} without the prefix as a citation.  A figure
+without a label is given the identifier \verb{fig-<chunk label>} (with
+\verb{-<row number>} for more than one row), so each figure of a multi-row
+ggtibble is its own numbered figure rather than a subfigure.  Do not give
+such a chunk a \verb{fig-} label of its own; the \code{ggtibble} chunk option leaves
+it off.  In R Markdown to LaTeX, cross-reference a labelled figure with
+\verb{\\ref\{<label>\}}.
+
+Figure ids must be unique within a document: an id already written by an
+earlier chunk is an error of class \code{ggtibble_error_label_duplicated}.  A
+labelled figure's image file is \verb{<chunk label>-<label>} with the device's
+extension; other figures use the knitr default
+\verb{<chunk label>-<row number>}.
+}
+
 \examples{
 # Ensure that each figure is within its own float area
 mydata <-

@@ -39,7 +39,7 @@ ggsave(
 )
 
 \method{ggsave}{ggtibble}(
-  filename,
+  filename = NULL,
   plot,
   device = NULL,
   path = NULL,
@@ -56,7 +56,10 @@ ggsave(
 }
 \arguments{
 \item{filename}{A character string passed to \code{glue::glue_data()} to generate
-file names for each row in \code{plot}.}
+file names for each row in \code{plot}.  For a \code{ggtibble}, \code{NULL} (the default)
+names each file \verb{<label>.<device>} from the "label" column, with \code{device}
+as the extension (\code{"png"} when \code{device} is \code{NULL}); every row must then
+have a label.}
 
 \item{plot}{Plot to save, defaults to last plot displayed.}
 

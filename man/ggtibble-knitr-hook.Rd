@@ -30,7 +30,8 @@ form the chunk label is not auto-derived; set \code{label = ...} explicitly if
 you want a non-default label.
 }
 
-Under Quarto (detected via the \code{QUARTO_VERSION} environment variable) the
+Under Quarto (detected via the knitr package option \code{quarto.version} or the
+\code{QUARTO_VERSION} environment variable) the
 auto-derived label is prefixed with \code{"fig-"} so \verb{@fig-...} cross-references
 work, and a multi-caption ggtibble is rendered using \code{fig.subcap} because
 Quarto's cross-reference resolver does not handle vector \code{fig.cap} on a

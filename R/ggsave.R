@@ -66,9 +66,12 @@ ggsave.gglist <- function(filename,
 
 #' @describeIn ggsave Save the figures in a `ggtibble` object
 #' @param filename A character string passed to `glue::glue_data()` to generate
-#'   file names for each row in `plot`.
+#'   file names for each row in `plot`.  For a `ggtibble`, `NULL` (the default)
+#'   names each file `<label>.<device>` from the "label" column, with `device`
+#'   as the extension (`"png"` when `device` is `NULL`); every row must then
+#'   have a label.
 #' @export
-ggsave.ggtibble <- function(filename,
+ggsave.ggtibble <- function(filename = NULL,
                             plot,
                             device = NULL,
                             path = NULL,
@@ -81,6 +84,9 @@ ggsave.ggtibble <- function(filename,
                             bg = NULL,
                             create.dir = FALSE,
                             ...) {
+  if (is.null(filename)) {
+    filename <- label_filenames(plot, device = device)
+  }
   checkmate::assert_character(filename, min.len = 1, max.len = nrow(plot), any.missing = FALSE, null.ok = FALSE)
   checkmate::assert_choice(length(filename), choices = c(1, nrow(plot)), null.ok = FALSE)
   if (length(filename) == nrow(plot)) {
@@ -134,4 +140,32 @@ ggsave.default <- function(filename,
     create.dir = create.dir,
     ...
   )
+}
+
+#' File names for the figures of a ggtibble from its labels
+#'
+#' @param plot A ggtibble
+#' @param device The `device` argument of `ggsave()`: `NULL` (giving `"png"`)
+#'   or a string used as the file extension
+#' @returns A character vector with one `<label>.<extension>` per row
+#' @noRd
+label_filenames <- function(plot, device) {
+  label <- validate_ggtibble_labels(ggtibble_text_column(plot, "label"))
+  if (!all(nzchar(label))) {
+    rlang::abort(
+      "`filename` is required unless every row of the ggtibble has a `label`",
+      class = "ggtibble_error_label_missing"
+    )
+  }
+  if (is.null(device)) {
+    ext <- "png"
+  } else if (is.character(device) && length(device) == 1) {
+    ext <- device
+  } else {
+    rlang::abort(
+      "`filename` is required when `device` is not a string, because the file extension cannot be chosen from it",
+      class = "ggtibble_error_device_extension"
+    )
+  }
+  paste0(label, ".", ext)
 }

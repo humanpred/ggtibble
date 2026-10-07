@@ -11,7 +11,9 @@ ggplot2::ggplot
 #'
 #' @param data The data.frame to plot
 #' @param ... Passed to subsequent methods (usually passed to `gglist()`)
-#' @return A data.frame with a column named "data_plot" with the data to plot, "figure" with the gglist, and "caption" with the captions
+#' @return A data.frame with a column named "data_plot" with the data to plot,
+#'   "figure" with the gglist, "caption" with the captions, "footnote" with the
+#'   footnotes, and "label" with the figure labels
 #' @export
 ggtibble <- function(data, ...) {
   UseMethod("ggtibble")
@@ -21,12 +23,22 @@ ggtibble <- function(data, ...) {
 #' @inheritParams ggplot2::ggplot
 #' @param outercols The columns to have outside the nesting
 #' @param caption The glue specification for creating the caption
+#' @param footnote The glue specification for creating the footnote, a note
+#'   rendered under each figure and kept with it (see "Footnotes and labels" in
+#'   [knit_print.gglist()]).  The default `""` gives no footnote.
+#' @param label The glue specification for creating each figure's label, its
+#'   identifier for cross-references and part of the name of its image file.
+#'   Labels must be unique, ignoring case, and may contain only letters,
+#'   digits, hyphens, underscores, and dots.  Under Quarto, start them with
+#'   `fig-` so that `@fig-...` cross-references resolve.  The default `""`
+#'   gives no label.
 #' @param labs Labels to add via `labs_glue()`
 #' @returns A `ggtibble` object which is a tibble with columns named "figure"
 #'   which is a `gglist` object (a list of ggplots), "data_plot" which is the a
 #'   list of data.frames making up the source data used for each individual
-#'   plot, "caption" which is the text to use for the plot caption, and all of
-#'   the `outercols` used for nesting.
+#'   plot, "caption" which is the text to use for the plot caption, "footnote"
+#'   which is the text to show under the plot, "label" which is the plot's
+#'   identifier, and all of the `outercols` used for nesting.
 #' @examples
 #' d_plot <-
 #'   data.frame(
@@ -48,28 +60,29 @@ ggtibble <- function(data, ...) {
 #'   ggplot2::geom_line()
 #' knit_print(all_plots)
 #' @export
-ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols = group_vars(data), labs = list(), caption = "") {
+ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols = group_vars(data), labs = list(), caption = "", footnote = "", label = "") {
   if (!tibble::is_tibble(data)) {
     data <- tibble::as_tibble(as.data.frame(data))
   }
   d_plot <- tidyr::nest(.data = data, data_plot = !tidyr::all_of(outercols))
   d_plot$figure <- gglist(data = d_plot$data_plot, mapping = mapping, ...)
 
-  # Check that all `outercols` are used either in the `caption` or the `labs`
-  # Extract all expressions used in arguments that will be glued
+  # Check that all `outercols` are used in an argument that will be glued
   glued_expr <-
     unlist(lapply(
-      X = append(labs, list(caption)), FUN = extract_glue_expr
+      X = append(labs, list(caption, footnote, label)), FUN = extract_glue_expr
     ))
   unused_outercols <- unique(setdiff(outercols, glued_expr))
   if (length(unused_outercols) > 0) {
     warning(
-      "The following `outercols` are not used in `caption` or `labs`: ",
+      "The following `outercols` are not used in `caption`, `footnote`, `label`, or `labs`: ",
       paste0("`", unused_outercols, "`", collapse = ", ")
     )
   }
 
   d_plot$caption <- glue::glue_data(d_plot, caption)
+  d_plot$footnote <- glue::glue_data(d_plot, footnote)
+  d_plot$label <- glue::glue_data(d_plot, label)
   d_plot <- new_ggtibble(d_plot)
   if (length(labs) > 0) {
     d_plot$figure <-
@@ -85,7 +98,10 @@ ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols =
 #' Create a new `ggtibble` object
 #'
 #' @param x A data.frame with a column named "figure" and "caption", and where
-#'   the "figure" column is a ggtibble.
+#'   the "figure" column is a ggtibble.  The "footnote" and "label" columns are
+#'   added as empty strings when absent.  Non-empty labels must be unique,
+#'   ignoring case, and may contain only letters, digits, hyphens,
+#'   underscores, and dots.
 #' @returns The object with a ggtibble class
 #' @family New ggtibble objects
 #' @examples
@@ -97,14 +113,77 @@ new_ggtibble <- function(x) {
   if (!inherits(x$figure, "gglist")) {
     x$figure <- new_gglist(x$figure)
   }
+  for (nm in setdiff(c("footnote", "label"), names(x))) {
+    x[[nm]] <- rep("", nrow(x))
+  }
+  validate_ggtibble_labels(x$label)
   class(x) <- unique(c("ggtibble", class(x)))
   x
+}
+
+#' Get a text column of a ggtibble, reading `NA` and a missing column as empty
+#'
+#' A ggtibble made before the "footnote" and "label" columns existed (for
+#' example, one read back from a cache) lacks them, which reads as all empty.
+#'
+#' @param x A ggtibble
+#' @param name The column name
+#' @returns A character vector with one element per row of `x`
+#' @noRd
+ggtibble_text_column <- function(x, name) {
+  if (!(name %in% names(x))) {
+    return(rep("", nrow(x)))
+  }
+  ret <- as.character(x[[name]])
+  ret[is.na(ret)] <- ""
+  ret
+}
+
+#' Check figure labels for identifier syntax and uniqueness
+#'
+#' Empty and `NA` labels mean "no label" and are not checked.
+#'
+#' @param label A character vector of labels
+#' @returns `label`, invisibly; an error of class
+#'   `ggtibble_error_label_invalid` or `ggtibble_error_label_duplicated`
+#'   otherwise
+#' @noRd
+validate_ggtibble_labels <- function(label) {
+  label <- as.character(label)
+  given <- label[!is.na(label) & nzchar(label)]
+  invalid <- unique(given[!grepl("^[A-Za-z0-9_.-]+$", given)])
+  if (length(invalid) > 0) {
+    rlang::abort(
+      paste0(
+        "Each `label` may contain only letters, digits, hyphens, underscores, and dots; invalid: ",
+        paste0("`", invalid, "`", collapse = ", ")
+      ),
+      class = "ggtibble_error_label_invalid"
+    )
+  }
+  # Labels name image files, and Windows and macOS file systems ignore case
+  lower <- tolower(given)
+  duplicated_labels <- unique(given[lower %in% lower[duplicated(lower)]])
+  if (length(duplicated_labels) > 0) {
+    rlang::abort(
+      paste0(
+        "Each `label` must be unique, ignoring case; duplicated: ",
+        paste0("`", duplicated_labels, "`", collapse = ", ")
+      ),
+      class = "ggtibble_error_label_duplicated"
+    )
+  }
+  invisible(label)
 }
 
 #' @describeIn knit_print.gglist Print the plots in a `ggtibble` object
 #' @export
 knit_print.ggtibble <- function(x, ...) {
-  knit_print(x$figure, ...)
+  if (has_figure_annotations(x)) {
+    knit_print_annotated(x, ...)
+  } else {
+    knit_print(x$figure, ...)
+  }
 }
 
 #' @describeIn plot.gglist Plot the figures in a `ggtibble` object
