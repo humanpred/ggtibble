@@ -109,14 +109,15 @@ prefixed with `fig-` so that `@fig-all_plots` cross-references resolve.
 # Footnotes and labels
 
 `ggtibble()` also takes `footnote` and `label` glue specifications, built per
-figure like `caption`.  A footnote is a note rendered under its figure that
-never separates from it: in LaTeX it goes inside the figure float (after the
-caption, in a smaller font, and out of the List of Figures), in Typst the
-figure and footnote share one unbreakable block, and in HTML and Word it is
-the paragraph directly after the figure.  A label is the figure's own
-identifier for cross-references and the name of its image file; labels must be
-unique and may use letters, digits, hyphens, underscores, and dots.  Under
-Quarto, start labels with `fig-` so that `@fig-...` references resolve.
+figure like `caption`.  A footnote is a markdown note rendered under its
+figure: in LaTeX it goes inside the figure float (after the caption, in a
+smaller font, and out of the List of Figures), in Typst the figure and
+footnote share one unbreakable block, and in HTML and Word it is the paragraph
+directly after the figure (Word may still put a page break between them).  A
+label is the figure's own identifier for cross-references and part of the name
+of its image file; labels must be unique, ignoring case, and may use letters,
+digits, hyphens, underscores, and dots.  Under Quarto, start labels with `fig-`
+so that `@fig-...` references resolve.
 
 A `ggtibble` with footnotes or labels is written as markdown, so a chunk that
 calls `knit_print()` on it needs `results = "asis"`; the `ggtibble` chunk

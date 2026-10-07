@@ -38,10 +38,11 @@ rendered under each figure and kept with it (see "Footnotes and labels" in
 \code{\link[=knit_print.gglist]{knit_print.gglist()}}).  The default \code{""} gives no footnote.}
 
 \item{label}{The glue specification for creating each figure's label, its
-identifier for cross-references and the base name of its image file.
-Labels must be unique and may contain only letters, digits, hyphens,
-underscores, and dots.  Under Quarto, start them with \verb{fig-} so that
-\verb{@fig-...} cross-references resolve.  The default \code{""} gives no label.}
+identifier for cross-references and part of the name of its image file.
+Labels must be unique, ignoring case, and may contain only letters,
+digits, hyphens, underscores, and dots.  Under Quarto, start them with
+\verb{fig-} so that \verb{@fig-...} cross-references resolve.  The default \code{""}
+gives no label.}
 }
 \value{
 A data.frame with a column named "data_plot" with the data to plot,

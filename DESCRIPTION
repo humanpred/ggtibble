@@ -26,7 +26,7 @@ Imports:
     dplyr,
     ggplot2,
     glue,
-    knitr,
+    knitr (>= 1.31),
     purrr,
     rlang,
     tibble,
