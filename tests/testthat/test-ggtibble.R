@@ -252,7 +252,7 @@ test_that("an outercol used only in `footnote` or `label` does not warn", {
 test_that("duplicated labels are refused with the duplicates named", {
   expect_error(
     ggtibble(data.frame(A = 1:3, B = c("a", "a", "b")), outercols = c("A", "B"), caption = "{A}", label = "{B}"),
-    regexp = "Each `label` must be unique; duplicated: `a`",
+    regexp = "Each `label` must be unique, ignoring case; duplicated: `a`",
     fixed = TRUE,
     class = "ggtibble_error_label_duplicated"
   )
@@ -287,4 +287,13 @@ test_that("ggtibble_text_column reads a missing column and NA as empty", {
   x <- tibble::tibble(caption = c("a", NA))
   expect_equal(ggtibble_text_column(x, "caption"), c("a", ""))
   expect_equal(ggtibble_text_column(x, "footnote"), c("", ""))
+})
+
+test_that("labels that differ only by case are duplicates, since they name the same file on Windows and macOS", {
+  expect_error(
+    ggtibble(data.frame(A = c("A", "a", "c")), outercols = "A", label = "{A}"),
+    regexp = "Each `label` must be unique, ignoring case; duplicated: `A`, `a`",
+    fixed = TRUE,
+    class = "ggtibble_error_label_duplicated"
+  )
 })

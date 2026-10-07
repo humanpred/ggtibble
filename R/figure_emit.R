@@ -47,7 +47,18 @@ knit_print_annotated <- function(x, ..., filename = NULL, fig_suffix = NULL, flo
     engine <- figure_output_engine()
     quarto <- is_quarto_render()
     device <- figure_device(options$dev)
-    id <- figure_ids(label, chunk_label = options$label, quarto = quarto)
+    ids <- figure_ids(label, chunk_label = options$label, quarto = quarto)
+    id <- ids$id
+    register_document_ids(id, derived = ids$derived, chunk_label = options$label)
+    if (quarto) {
+      warn_quarto_labels_not_fig(label, chunk_label = options$label)
+    }
+    paths <- vapply(
+      X = seq_len(n),
+      FUN = function(idx) figure_image_path(label[idx], number = idx, ext = device$ext, options = options),
+      FUN.VALUE = ""
+    )
+    check_figure_paths(paths, chunk_label = options$label)
   }
   for (idx in seq_len(n)) {
     plot <- x$figure[[idx]]
@@ -62,7 +73,7 @@ knit_print_annotated <- function(x, ..., filename = NULL, fig_suffix = NULL, flo
       ggplot2::ggsave(filename = filename[[idx]], plot = plot, width = width, height = height, units = units)
     }
     if (in_knitr) {
-      path <- figure_image_path(label[idx], number = idx, ext = device$ext, options = options)
+      path <- paths[idx]
       dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
       ggplot2::ggsave(
         filename = path, plot = plot, device = device$device,
@@ -143,26 +154,117 @@ figure_device <- function(dev) {
 #' @param label The labels, with `""` for none
 #' @param chunk_label The knitr chunk label
 #' @param quarto Is this a Quarto render?
-#' @returns A character vector of identifiers, `NA` for none
+#' @returns A list of `id`, a character vector of identifiers (`NA` for none),
+#'   and `derived`, whether each id was derived from the chunk label
 #' @noRd
 figure_ids <- function(label, chunk_label, quarto) {
   id <- label
-  missing_id <- !nzchar(id)
+  derived <- !nzchar(id)
   if (quarto) {
     base <- paste0("fig-", sub("^fig-", "", chunk_label))
-    derived <- if (length(id) == 1) base else paste0(base, "-", seq_along(id))
-    id[missing_id] <- derived[missing_id]
-    validate_ggtibble_labels(id)
+    from_chunk <- if (length(id) == 1) base else paste0(base, "-", seq_along(id))
+    id[derived] <- from_chunk[derived]
+    clash <- unique(id[derived & id %in% id[!derived]])
+    if (length(clash) > 0) {
+      rlang::abort(
+        paste0(
+          "The figure id ", paste0("`", clash, "`", collapse = ", "),
+          ", derived from the chunk label `", chunk_label, "` for a figure without a label, ",
+          "is also a `label` of the ggtibble; figure ids must be unique"
+        ),
+        class = "ggtibble_error_label_duplicated"
+      )
+    }
   } else {
-    id[missing_id] <- NA_character_
+    id[derived] <- NA_character_
+    derived[] <- FALSE
   }
-  id
+  list(id = id, derived = derived)
+}
+
+#' The knitr::knit() call that is knitting the current document
+#'
+#' Its frame identifies one knitting run, so ids recorded in an earlier run (for
+#' example one that stopped with an error before the document hook could reset
+#' them) are not mistaken for ids of the current document.  The outermost
+#' frame is used, so a child document shares its parent's ids.
+#'
+#' @returns The frame environment, or `NULL` when no `knitr::knit()` call is
+#'   on the stack
+#' @noRd
+current_knit_frame <- function() {
+  for (idx in seq_len(sys.nframe())) {
+    if (identical(sys.function(idx), knitr::knit)) {
+      return(sys.frame(idx))
+    }
+  }
+  NULL
+}
+
+#' Record the figure ids of a chunk, refusing any already used in the document
+#'
+#' @param id The chunk's figure ids, `NA` for none
+#' @param derived Whether each id was derived from the chunk label
+#' @param chunk_label The knitr chunk label
+#' @returns `NULL`, invisibly; an error of class
+#'   `ggtibble_error_label_duplicated` for a repeated id
+#' @noRd
+register_document_ids <- function(id, derived, chunk_label) {
+  frame <- current_knit_frame()
+  if (!identical(get0("frame", envir = .ggtibble_id_cache, inherits = FALSE), frame)) {
+    assign("frame", frame, envir = .ggtibble_id_cache)
+    assign("chunks", character(), envir = .ggtibble_id_cache)
+  }
+  chunks <- get0("chunks", envir = .ggtibble_id_cache, inherits = FALSE, ifnotfound = character())
+  for (idx in which(!is.na(id))) {
+    if (id[idx] %in% names(chunks)) {
+      rlang::abort(
+        paste0(
+          "The figure id `", id[idx], "`",
+          if (derived[idx]) paste0(" (derived from the chunk label for a figure without a label)"),
+          " in chunk `", chunk_label, "` was already used in chunk `", chunks[[id[idx]]],
+          "`; figure ids must be unique within a document"
+        ),
+        class = "ggtibble_error_label_duplicated"
+      )
+    }
+    chunks[[id[idx]]] <- chunk_label
+  }
+  assign("chunks", chunks, envir = .ggtibble_id_cache)
+  invisible(NULL)
+}
+
+#' Warn when a Quarto document has labels that are not cross-referenceable
+#'
+#' Quarto treats `@<label>` as a cross-reference only for a `fig-` label;
+#' otherwise it is a citation, which renders as text in HTML and fails without
+#' a bibliography in Typst.
+#'
+#' @param label The labels, with `""` for none
+#' @param chunk_label The knitr chunk label
+#' @returns `NULL`, invisibly; a warning of class
+#'   `ggtibble_warning_label_not_fig` when any label lacks the `fig-` prefix
+#' @noRd
+warn_quarto_labels_not_fig <- function(label, chunk_label) {
+  not_fig <- label[nzchar(label) & !startsWith(label, "fig-")]
+  if (length(not_fig) > 0) {
+    rlang::warn(
+      paste0(
+        "Under Quarto, only labels starting with `fig-` are cross-referenceable figures, ",
+        "so `@` references to these labels in chunk `", chunk_label, "` will not resolve: ",
+        paste0("`", not_fig, "`", collapse = ", ")
+      ),
+      class = "ggtibble_warning_label_not_fig"
+    )
+  }
+  invisible(NULL)
 }
 
 #' The image file path for one figure
 #'
-#' A labelled figure's image is named after its label; any other uses knitr's
-#' usual `<fig.path><chunk label>-<number>` name.  Both go through
+#' A labelled figure's image is `<fig.path><chunk label>-<label>`, so the same
+#' label in two chunks does not write one file over the other; any other figure
+#' uses knitr's usual `<fig.path><chunk label>-<number>` name.  Both go through
 #' [knitr::fig_path()], which makes the name safe for LaTeX.
 #'
 #' @param label The figure's label, `""` for none
@@ -173,11 +275,38 @@ figure_ids <- function(label, chunk_label, quarto) {
 #' @noRd
 figure_image_path <- function(label, number, ext, options) {
   if (nzchar(label)) {
-    options$label <- label
+    options$label <- paste0(options$label, "-", label)
     knitr::fig_path(ext, options = options, number = NULL)
   } else {
     knitr::fig_path(ext, options = options, number = number)
   }
+}
+
+#' Refuse a chunk whose figures would share an image file
+#'
+#' A label that is a row number (label `"2"` beside an unlabelled second row)
+#' gives the same name as knitr's numbering; names that differ only by case are
+#' one file on Windows and macOS.
+#'
+#' @param paths The image paths of the chunk's figures
+#' @param chunk_label The knitr chunk label
+#' @returns `paths`, invisibly; an error of class
+#'   `ggtibble_error_figure_path_duplicated` otherwise
+#' @noRd
+check_figure_paths <- function(paths, chunk_label) {
+  lower <- tolower(paths)
+  clash <- unique(paths[lower %in% lower[duplicated(lower)]])
+  if (length(clash) > 0) {
+    rlang::abort(
+      paste0(
+        "Figures in chunk `", chunk_label, "` would be saved to the same image file: ",
+        paste0("`", clash, "`", collapse = ", "),
+        "; change the labels so that no two differ only by case or match another figure's row number"
+      ),
+      class = "ggtibble_error_figure_path_duplicated"
+    )
+  }
+  invisible(paths)
 }
 
 #' Build the markdown for one figure, its caption, its footnote, and its id
@@ -241,14 +370,52 @@ figure_div_markdown <- function(path, caption, id, scap = NULL) {
   if (!is.null(scap)) {
     attrs <- paste0(attrs, " fig-scap=\"", markdown_attr_escape(scap), "\"")
   }
-  paste0("\n\n::: {", attrs, "}\n![](", path, ")\n\n", caption, "\n:::\n\n")
+  # The caption must stay one paragraph: Quarto takes the Div's last paragraph
+  paste0("\n\n::: {", attrs, "}\n![](", markdown_link_target(path), ")\n\n", latex_flatten(caption), "\n:::\n\n")
 }
 
 #' A pandoc implicit figure: an image alone in its paragraph
 #' @noRd
 figure_image_markdown <- function(path, caption, id) {
   attrs <- if (is.na(id)) "" else paste0("{#", id, "}")
-  paste0("\n\n![", caption, "](", path, ")", attrs, "\n\n")
+  paste0("\n\n![", markdown_link_text(caption), "](", markdown_link_target(path), ")", attrs, "\n\n")
+}
+
+#' Make text safe as the bracketed text of a markdown image or link
+#'
+#' The text is joined onto one line, since a blank line would end the
+#' paragraph.  Brackets are escaped only when unbalanced (as in "(0, 24] h"),
+#' so that balanced markdown such as a link inside the caption still works; a
+#' trailing backslash is escaped so that it cannot escape the closing bracket.
+#'
+#' @param x A single string of markdown
+#' @returns The string, ready to go between `![` and `]`
+#' @noRd
+markdown_link_text <- function(x) {
+  x <- latex_flatten(x)
+  trailing_backslashes <- nchar(x) - nchar(sub("\\\\+$", "", x))
+  if (trailing_backslashes %% 2 == 1) {
+    x <- paste0(x, "\\")
+  }
+  if (!markdown_brackets_balanced(x)) {
+    x <- gsub("(?<!\\\\)([][])", "\\\\\\1", x, perl = TRUE)
+  }
+  x
+}
+
+#' Do the unescaped square brackets of a string nest properly?
+#' @noRd
+markdown_brackets_balanced <- function(x) {
+  chars <- strsplit(gsub("\\\\.", "", x), "")[[1]]
+  depth <- cumsum((chars == "[") - (chars == "]"))
+  all(depth >= 0) && (length(depth) == 0 || depth[length(depth)] == 0)
+}
+
+#' Write a path as a markdown link target that spaces or parentheses cannot
+#' break
+#' @noRd
+markdown_link_target <- function(path) {
+  paste0("<", path, ">")
 }
 
 #' A LaTeX figure float written directly

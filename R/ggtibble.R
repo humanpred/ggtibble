@@ -27,10 +27,11 @@ ggtibble <- function(data, ...) {
 #'   rendered under each figure and kept with it (see "Footnotes and labels" in
 #'   [knit_print.gglist()]).  The default `""` gives no footnote.
 #' @param label The glue specification for creating each figure's label, its
-#'   identifier for cross-references and the base name of its image file.
-#'   Labels must be unique and may contain only letters, digits, hyphens,
-#'   underscores, and dots.  Under Quarto, start them with `fig-` so that
-#'   `@fig-...` cross-references resolve.  The default `""` gives no label.
+#'   identifier for cross-references and part of the name of its image file.
+#'   Labels must be unique, ignoring case, and may contain only letters,
+#'   digits, hyphens, underscores, and dots.  Under Quarto, start them with
+#'   `fig-` so that `@fig-...` cross-references resolve.  The default `""`
+#'   gives no label.
 #' @param labs Labels to add via `labs_glue()`
 #' @returns A `ggtibble` object which is a tibble with columns named "figure"
 #'   which is a `gglist` object (a list of ggplots), "data_plot" which is the a
@@ -98,8 +99,9 @@ ggtibble.data.frame <- function(data, mapping = ggplot2::aes(), ..., outercols =
 #'
 #' @param x A data.frame with a column named "figure" and "caption", and where
 #'   the "figure" column is a ggtibble.  The "footnote" and "label" columns are
-#'   added as empty strings when absent.  Non-empty labels must be unique and
-#'   may contain only letters, digits, hyphens, underscores, and dots.
+#'   added as empty strings when absent.  Non-empty labels must be unique,
+#'   ignoring case, and may contain only letters, digits, hyphens,
+#'   underscores, and dots.
 #' @returns The object with a ggtibble class
 #' @family New ggtibble objects
 #' @examples
@@ -159,11 +161,13 @@ validate_ggtibble_labels <- function(label) {
       class = "ggtibble_error_label_invalid"
     )
   }
-  duplicated_labels <- unique(given[duplicated(given)])
+  # Labels name image files, and Windows and macOS file systems ignore case
+  lower <- tolower(given)
+  duplicated_labels <- unique(given[lower %in% lower[duplicated(lower)]])
   if (length(duplicated_labels) > 0) {
     rlang::abort(
       paste0(
-        "Each `label` must be unique; duplicated: ",
+        "Each `label` must be unique, ignoring case; duplicated: ",
         paste0("`", duplicated_labels, "`", collapse = ", ")
       ),
       class = "ggtibble_error_label_duplicated"

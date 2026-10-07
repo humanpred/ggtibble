@@ -28,6 +28,9 @@ NULL
 
 .ggtibble_chunk_cache <- new.env(parent = emptyenv())
 .ggtibble_label_cache <- new.env(parent = emptyenv())
+# Figure ids written so far in the document being knitted (see
+# register_document_ids())
+.ggtibble_id_cache <- new.env(parent = emptyenv())
 
 #' @rdname ggtibble-knitr-hook
 ggtibble_opts_hook <- function(options) {
@@ -139,6 +142,7 @@ deduplicate_label <- function(base) {
 reset_ggtibble_caches <- function() {
   rm(list = ls(.ggtibble_chunk_cache, all.names = TRUE), envir = .ggtibble_chunk_cache)
   rm(list = ls(.ggtibble_label_cache, all.names = TRUE), envir = .ggtibble_label_cache)
+  rm(list = ls(.ggtibble_id_cache, all.names = TRUE), envir = .ggtibble_id_cache)
   invisible()
 }
 
