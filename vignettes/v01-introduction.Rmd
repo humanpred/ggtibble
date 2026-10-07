@@ -105,3 +105,40 @@ The option value is R code given as a character string and is evaluated in the
 knit environment, so `ggtibble = "targets::tar_read(all_plots)"` also works.
 This same syntax works in Quarto, where the auto-generated chunk label is
 prefixed with `fig-` so that `@fig-all_plots` cross-references resolve.
+
+# Footnotes and labels
+
+`ggtibble()` also takes `footnote` and `label` glue specifications, built per
+figure like `caption`.  A footnote is a note rendered under its figure that
+never separates from it: in LaTeX it goes inside the figure float (after the
+caption, in a smaller font, and out of the List of Figures), in Typst the
+figure and footnote share one unbreakable block, and in HTML and Word it is
+the paragraph directly after the figure.  A label is the figure's own
+identifier for cross-references and the name of its image file; labels must be
+unique and may use letters, digits, hyphens, underscores, and dots.  Under
+Quarto, start labels with `fig-` so that `@fig-...` references resolve.
+
+A `ggtibble` with footnotes or labels is written as markdown, so a chunk that
+calls `knit_print()` on it needs `results = "asis"`; the `ggtibble` chunk
+option sets that for you.
+
+```{r footnoted}
+footnoted_plots <-
+  ggtibble(
+    d_plot,
+    aes(x = disp, y = hp),
+    outercols = c("cyl", "dispu"),
+    caption = "Horsepower by displacement for {cyl} cars",
+    footnote = "Displacement is in {dispu}; each point is one car.",
+    label = "hp-disp-{cyl}",
+    labs = list(x = "Displacement ({dispu})", y = "Gross horsepower")
+  ) +
+  geom_point()
+```
+
+```{r ggtibble="footnoted_plots"}
+```
+
+`ggsave()` names the files after the labels when no `filename` is given, so
+`ggsave(plot = footnoted_plots)` writes `hp-disp-4.png`, `hp-disp-6.png`, and
+`hp-disp-8.png`.

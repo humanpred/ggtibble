@@ -63,6 +63,43 @@ auto-suffix.  Pass \code{fig_suffix} explicitly to override, or set
 \item \code{knit_print(ggtibble)}: Print the plots in a \code{ggtibble} object
 
 }}
+\section{Footnotes and labels}{
+
+
+A \code{ggtibble} whose "footnote" or "label" column (see \code{\link[=ggtibble]{ggtibble()}}) is
+non-empty on any row is written by \code{knit_print()} as markdown: each figure
+is saved under the chunk's \code{fig.path} with the chunk's \code{dev}, \code{fig.width},
+\code{fig.height}, and \code{dpi}, and written with its caption, its footnote, and its
+label as its identifier.  The chunk therefore needs \code{results = "asis"}; the
+\code{ggtibble} chunk option sets it, and calling \code{knit_print()} in a chunk
+without it is an error.  A \code{ggtibble} with no footnotes or labels renders
+through the knitr plot hook exactly as before.
+
+Markdown in captions and footnotes passes through to pandoc.  The footnote
+never separates from its figure:\tabular{lll}{
+   Output \tab Figure \tab Footnote \cr
+   LaTeX (R Markdown and Quarto) \tab A figure float with \verb{\\label\{<label>\}} \tab Inside the float, appended to the caption after a line break in \verb{\\footnotesize}; the short caption (for the List of Figures) is the plain caption \cr
+   Quarto to Typst \tab A figure Div \tab A paragraph in 0.9em text after the Div, with the Div, inside one unbreakable Typst block \cr
+   HTML \tab An image with its caption \tab A Div of class \code{figure-footnote} in a smaller font directly after the figure \cr
+   Word and other pandoc formats \tab An image with its caption \tab A plain paragraph directly after the figure \cr
+   knitr markdown without pandoc \tab An image with its caption, without an identifier \tab A plain paragraph directly after the figure \cr
+}
+
+
+Under Quarto, a figure whose label starts with \verb{fig-} is written as a
+figure Div so that \verb{@<label>} cross-references resolve; other labels are
+kept as given, so start labels with \verb{fig-} for Quarto cross-references.  A
+figure without a label is given the identifier \verb{fig-<chunk label>} (with
+\verb{-<row number>} for more than one row), so each figure of a multi-row
+ggtibble is its own numbered figure rather than a subfigure.  Do not give
+such a chunk a \verb{fig-} label of its own; the \code{ggtibble} chunk option leaves
+it off.  In R Markdown to LaTeX, cross-reference a labelled figure with
+\verb{\\ref\{<label>\}}.
+
+A labelled figure's image file is named \verb{<label>} with the device's
+extension; other figures use the knitr default \verb{<chunk label>-<row number>}.
+}
+
 \examples{
 # Ensure that each figure is within its own float area
 mydata <-

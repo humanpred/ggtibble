@@ -2,6 +2,7 @@ CMD
 Codecov
 Knitr
 Tibbles
+Typst
 bmp
 colour
 eps
@@ -14,12 +15,14 @@ ggplots
 jpeg
 knitr
 labelled
+pandoc
 pictex
 png
 ps
 recurse
 recursing
 sprintf
+subfigure
 svg
 tex
 tibble

@@ -14,7 +14,9 @@ ggtibble(data, ...)
   ...,
   outercols = group_vars(data),
   labs = list(),
-  caption = ""
+  caption = "",
+  footnote = "",
+  label = ""
 )
 }
 \arguments{
@@ -30,15 +32,28 @@ If not specified, must be supplied in each layer added to the plot.}
 \item{labs}{Labels to add via \code{labs_glue()}}
 
 \item{caption}{The glue specification for creating the caption}
+
+\item{footnote}{The glue specification for creating the footnote, a note
+rendered under each figure and kept with it (see "Footnotes and labels" in
+\code{\link[=knit_print.gglist]{knit_print.gglist()}}).  The default \code{""} gives no footnote.}
+
+\item{label}{The glue specification for creating each figure's label, its
+identifier for cross-references and the base name of its image file.
+Labels must be unique and may contain only letters, digits, hyphens,
+underscores, and dots.  Under Quarto, start them with \verb{fig-} so that
+\verb{@fig-...} cross-references resolve.  The default \code{""} gives no label.}
 }
 \value{
-A data.frame with a column named "data_plot" with the data to plot, "figure" with the gglist, and "caption" with the captions
+A data.frame with a column named "data_plot" with the data to plot,
+"figure" with the gglist, "caption" with the captions, "footnote" with the
+footnotes, and "label" with the figure labels
 
 A \code{ggtibble} object which is a tibble with columns named "figure"
 which is a \code{gglist} object (a list of ggplots), "data_plot" which is the a
 list of data.frames making up the source data used for each individual
-plot, "caption" which is the text to use for the plot caption, and all of
-the \code{outercols} used for nesting.
+plot, "caption" which is the text to use for the plot caption, "footnote"
+which is the text to show under the plot, "label" which is the plot's
+identifier, and all of the \code{outercols} used for nesting.
 }
 \description{
 Make a tibble where one column is the data to plot, one is the gglist, and

@@ -8,7 +8,9 @@ new_ggtibble(x)
 }
 \arguments{
 \item{x}{A data.frame with a column named "figure" and "caption", and where
-the "figure" column is a ggtibble.}
+the "figure" column is a ggtibble.  The "footnote" and "label" columns are
+added as empty strings when absent.  Non-empty labels must be unique and
+may contain only letters, digits, hyphens, underscores, and dots.}
 }
 \value{
 The object with a ggtibble class

@@ -1,3 +1,24 @@
+# ggtibble (development version)
+
+* `ggtibble()` gains `footnote` and `label` arguments, glue specifications
+  evaluated per row like `caption`, giving `footnote` and `label` columns
+  (empty when not given, including from `as_ggtibble()`).  A footnote renders
+  under its figure in every output format and never separates from it: inside
+  the figure float after the caption in LaTeX (with the plain caption as the
+  List of Figures entry), in one unbreakable block with the figure Div in
+  Quarto Typst, and as the paragraph directly after the figure in HTML (a
+  smaller `figure-footnote` Div), Word, and plain markdown.  A label is the
+  figure's own identifier (`\label{}` in LaTeX, the figure Div or image id in
+  Quarto and pandoc output) and the base name of its image file.  Labels must
+  be unique and use only letters, digits, hyphens, underscores, and dots.  A
+  ggtibble without footnotes or labels renders as before.
+* `ggsave()` on a `ggtibble` without `filename` names each file after its
+  label.
+* Quarto renders are detected again with current Quarto versions, which no
+  longer set the `QUARTO_VERSION` environment variable, so the `ggtibble`
+  chunk option once more prefixes `fig-` to its labels and uses `fig.subcap`
+  for multiple captions under Quarto.
+
 # ggtibble 1.0.4
 
 * `gglist` objects may now nest: a `gglist` element of a `gglist` is allowed,
