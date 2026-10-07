@@ -513,17 +513,23 @@ test_that("R Markdown to Word: a caption with an unbalanced bracket still gives 
   utils::unzip(out, files = "word/document.xml", exdir = td)
   xml <- paste(readLines(file.path(td, "word", "document.xml"), warn = FALSE, encoding = "UTF-8"), collapse = "\n")
   expect_false(grepl("![AUC", xml, fixed = TRUE))
+  # pandoc writes a figure's id as a Word bookmark from 3.8.3 (verified; 3.1.3
+  # writes none), so the bookmark is only expected from that version on
+  bookmark_expected <- rmarkdown::pandoc_available("3.8.3")
   for (i in 1:2) {
     # In document order: the bookmark carrying the id, the image, the caption,
     # then the footnote paragraph
     positions <- c(
-      bookmark = regexpr(sprintf("<w:bookmarkStart w:id=\"[0-9]+\" w:name=\"lab%d\" />", i), xml),
+      bookmark = regexpr(sprintf("<w:bookmarkStart[^>]*w:name=\"lab%d\"", i), xml),
       image = regexpr(sprintf("<wp:docPr descr=\"AUC over (0, 24] h %d\"", i), xml, fixed = TRUE),
       caption = regexpr(sprintf("<w:t xml:space=\"preserve\">AUC over (0, 24] h %d</w:t>", i), xml, fixed = TRUE),
       footnote = regexpr(sprintf("<w:t xml:space=\"preserve\">Note %d</w:t>", i), xml, fixed = TRUE)
     )
+    if (!bookmark_expected) {
+      positions <- positions[names(positions) != "bookmark"]
+    }
     expect_true(all(positions > 0), info = paste(names(positions)[positions < 0], collapse = ", "))
-    expect_equal(names(sort(positions)), c("bookmark", "image", "caption", "footnote"))
+    expect_equal(names(sort(positions)), names(positions))
   }
 })
 
