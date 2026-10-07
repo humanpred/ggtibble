@@ -81,6 +81,57 @@ to disable the auto-suffix entirely.
 
 - `knit_print(ggtibble)`: Print the plots in a `ggtibble` object
 
+## Footnotes and labels
+
+A `ggtibble` whose "footnote" or "label" column (see
+[`ggtibble()`](https://humanpred.github.io/ggtibble/reference/ggtibble.md))
+is non-empty on any row is written by
+[`knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html) as
+markdown: each figure is saved as an image and written with its caption,
+its footnote, and its label as its identifier. The chunk therefore needs
+`results = "asis"`; the `ggtibble` chunk option sets it, and calling
+[`knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html) in a
+chunk without it is an error. A `ggtibble` with no footnotes or labels
+renders through the knitr plot hook exactly as before.
+
+Of the chunk options, this route uses `fig.path`, `label`, `dev` (one of
+the common devices; others are an error), `fig.width`, `fig.height`,
+`dpi`, and, for LaTeX, `fig.pos`. It does not apply `out.width`,
+`out.height`, `fig.align`, `fig.alt`, `fig.cap` (the captions come from
+the ggtibble), or `dev.args`.
+
+Captions and footnotes are markdown and pass through to pandoc: emphasis
+and links work, a footnote line starting with `# ` becomes a heading,
+and raw LaTeX reaches only LaTeX output (pandoc drops it elsewhere). A
+caption is joined onto one line, and unbalanced square brackets in it
+are escaped.
+
+|  |  |  |  |
+|----|----|----|----|
+| Output | Figure | Footnote | Kept with the figure |
+| LaTeX (R Markdown and Quarto) | A figure float with `\label{<label>}` | Inside the float, appended to the caption after a line break in `\footnotesize`; the short caption (for the List of Figures) is the plain caption | Yes, it is in the float |
+| Quarto to Typst | A figure Div | A paragraph in 0.9em text after the Div | Yes, the Div and footnote are one unbreakable Typst block |
+| HTML | An image with its caption | A Div of class `figure-footnote` in a smaller font directly after the figure | Not applicable (no pages) |
+| Word and other pandoc formats | An image with its caption | A plain paragraph, in the body text size, directly after the figure | No: Word may break the page between them |
+| knitr markdown without pandoc | An image with its caption, without an identifier | A plain paragraph directly after the figure | Not applicable |
+
+Under Quarto, a figure whose label starts with `fig-` is written as a
+figure Div so that `@<label>` cross-references resolve; other labels are
+kept as given, with a warning of class `ggtibble_warning_label_not_fig`,
+since Quarto reads `@<label>` without the prefix as a citation. A figure
+without a label is given the identifier `fig-<chunk label>` (with
+`-<row number>` for more than one row), so each figure of a multi-row
+ggtibble is its own numbered figure rather than a subfigure. Do not give
+such a chunk a `fig-` label of its own; the `ggtibble` chunk option
+leaves it off. In R Markdown to LaTeX, cross-reference a labelled figure
+with `\ref{<label>}`.
+
+Figure ids must be unique within a document: an id already written by an
+earlier chunk is an error of class `ggtibble_error_label_duplicated`. A
+labelled figure's image file is `<chunk label>-<label>` with the
+device's extension; other figures use the knitr default
+`<chunk label>-<row number>`.
+
 ## See also
 
 Other knitters:

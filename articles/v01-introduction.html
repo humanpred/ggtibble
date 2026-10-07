@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggtibble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -156,12 +156,12 @@ etc.</li>
 <span><span class="co"># The result is a tibble with columns for the `data_plot`, `figure`, and</span></span>
 <span><span class="co"># `caption`</span></span>
 <span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">all_plots</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
-<span><span class="co">#&gt;     cyl dispu   data_plot                   figure caption                      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;gglist&gt;</span> <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span>                       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     6 cu. in. <span style="color: #949494;">&lt;tibble [7 × 10]&gt;</span>  A ggplot object Horsepower by displacement f…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4 cu. in. <span style="color: #949494;">&lt;tibble [11 × 10]&gt;</span> A ggplot object Horsepower by displacement f…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     8 cu. in. <span style="color: #949494;">&lt;tibble [14 × 10]&gt;</span> A ggplot object Horsepower by displacement f…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 7</span></span></span>
+<span><span class="co">#&gt;     cyl dispu   data_plot                   figure caption        footnote label</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;gglist&gt;</span> <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;glue&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;glu&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     6 cu. in. <span style="color: #949494;">&lt;tibble [7 × 10]&gt;</span>  A ggplot object Horsepower by…               </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4 cu. in. <span style="color: #949494;">&lt;tibble [11 × 10]&gt;</span> A ggplot object Horsepower by…               </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     8 cu. in. <span style="color: #949494;">&lt;tibble [14 × 10]&gt;</span> A ggplot object Horsepower by…</span></span>
 <span></span>
 <span><span class="co"># You can then show all the figures with the `knit_print()` method.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print</a></span><span class="op">(</span><span class="va">all_plots</span><span class="op">)</span></span></code></pre></div>
@@ -225,6 +225,63 @@ evaluated in the knit environment, so
 same syntax works in Quarto, where the auto-generated chunk label is
 prefixed with <code>fig-</code> so that <code>@fig-all_plots</code>
 cross-references resolve.</p>
+</div>
+<div class="section level2">
+<h2 id="footnotes-and-labels">Footnotes and labels<a class="anchor" aria-label="anchor" href="#footnotes-and-labels"></a>
+</h2>
+<p><code><a href="../reference/ggtibble.html">ggtibble()</a></code> also takes <code>footnote</code> and
+<code>label</code> glue specifications, built per figure like
+<code>caption</code>. A footnote is a markdown note rendered under its
+figure: in LaTeX it goes inside the figure float (after the caption, in
+a smaller font, and out of the List of Figures), in Typst the figure and
+footnote share one unbreakable block, and in HTML and Word it is the
+paragraph directly after the figure (Word may still put a page break
+between them). A label is the figure’s own identifier for
+cross-references and part of the name of its image file; labels must be
+unique, ignoring case, and may use letters, digits, hyphens,
+underscores, and dots. Under Quarto, start labels with <code>fig-</code>
+so that <code>@fig-...</code> references resolve.</p>
+<p>A <code>ggtibble</code> with footnotes or labels is written as
+markdown, so a chunk that calls <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print()</a></code> on it needs
+<code>results = "asis"</code>; the <code>ggtibble</code> chunk option
+sets that for you.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">footnoted_plots</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="../reference/ggtibble.html">ggtibble</a></span><span class="op">(</span></span>
+<span>    <span class="va">d_plot</span>,</span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">disp</span>, y <span class="op">=</span> <span class="va">hp</span><span class="op">)</span>,</span>
+<span>    outercols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"dispu"</span><span class="op">)</span>,</span>
+<span>    caption <span class="op">=</span> <span class="st">"Horsepower by displacement for {cyl} cars"</span>,</span>
+<span>    footnote <span class="op">=</span> <span class="st">"Displacement is in {dispu}; each point is one car."</span>,</span>
+<span>    label <span class="op">=</span> <span class="st">"hp-disp-{cyl}"</span>,</span>
+<span>    labs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Displacement ({dispu})"</span>, y <span class="op">=</span> <span class="st">"Gross horsepower"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/getFromNamespace.html" class="external-link">getFromNamespace</a></span><span class="op">(</span><span class="st">".ggtibble_chunk_cache"</span>, <span class="st">"ggtibble"</span><span class="op">)</span><span class="op">[[</span><span class="st">"footnoted_plots"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<div class="float" id="hp-disp-6">
+<img src="v01-introduction_files/figure-html/footnoted_plots-hp-disp-6.png" alt="Horsepower by displacement for 6 cars"><div class="figcaption">Horsepower by displacement for 6 cars</div>
+</div>
+<div class="figure-footnote" style="font-size: smaller;">
+<p>Displacement is in cu. in.; each point is one car.</p>
+</div>
+<div class="float" id="hp-disp-4">
+<img src="v01-introduction_files/figure-html/footnoted_plots-hp-disp-4.png" alt="Horsepower by displacement for 4 cars"><div class="figcaption">Horsepower by displacement for 4 cars</div>
+</div>
+<div class="figure-footnote" style="font-size: smaller;">
+<p>Displacement is in cu. in.; each point is one car.</p>
+</div>
+<div class="float" id="hp-disp-8">
+<img src="v01-introduction_files/figure-html/footnoted_plots-hp-disp-8.png" alt="Horsepower by displacement for 8 cars"><div class="figcaption">Horsepower by displacement for 8 cars</div>
+</div>
+<div class="figure-footnote" style="font-size: smaller;">
+<p>Displacement is in cu. in.; each point is one car.</p>
+</div>
+<p><code><a href="../reference/ggsave.html">ggsave()</a></code> names the files after the labels when no
+<code>filename</code> is given, so
+<code>ggsave(plot = footnoted_plots)</code> writes
+<code>hp-disp-4.png</code>, <code>hp-disp-6.png</code>, and
+<code>hp-disp-8.png</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

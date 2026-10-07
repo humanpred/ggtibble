@@ -13,7 +13,7 @@ the chunk body is empty."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ggtibble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,8 @@ With the string form a chunk label is derived automatically.</p></li>
 <li><p>a <code>ggtibble</code> object directly (e.g. <code>ggtibble = my_obj</code>). With the object
 form the chunk label is not auto-derived; set <code>label = ...</code> explicitly if
 you want a non-default label.</p></li>
-</ul><p>Under Quarto (detected via the <code>QUARTO_VERSION</code> environment variable) the
+</ul><p>Under Quarto (detected via the knitr package option <code>quarto.version</code> or the
+<code>QUARTO_VERSION</code> environment variable) the
 auto-derived label is prefixed with <code>"fig-"</code> so <code>@fig-...</code> cross-references
 work, and a multi-caption ggtibble is rendered using <code>fig.subcap</code> because
 Quarto's cross-reference resolver does not handle vector <code>fig.cap</code> on a

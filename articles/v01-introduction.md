@@ -98,12 +98,12 @@ all_plots <-
 # The result is a tibble with columns for the `data_plot`, `figure`, and
 # `caption`
 as_tibble(all_plots)
-#> # A tibble: 3 × 5
-#>     cyl dispu   data_plot                   figure caption                      
-#>   <dbl> <chr>   <list>                    <gglist> <glue>                       
-#> 1     6 cu. in. <tibble [7 × 10]>  A ggplot object Horsepower by displacement f…
-#> 2     4 cu. in. <tibble [11 × 10]> A ggplot object Horsepower by displacement f…
-#> 3     8 cu. in. <tibble [14 × 10]> A ggplot object Horsepower by displacement f…
+#> # A tibble: 3 × 7
+#>     cyl dispu   data_plot                   figure caption        footnote label
+#>   <dbl> <chr>   <list>                    <gglist> <glue>         <glue>   <glu>
+#> 1     6 cu. in. <tibble [7 × 10]>  A ggplot object Horsepower by…               
+#> 2     4 cu. in. <tibble [11 × 10]> A ggplot object Horsepower by…               
+#> 3     8 cu. in. <tibble [14 × 10]> A ggplot object Horsepower by…
 
 # You can then show all the figures with the `knit_print()` method.
 knit_print(all_plots)
@@ -167,3 +167,69 @@ in the knit environment, so `ggtibble = "targets::tar_read(all_plots)"`
 also works. This same syntax works in Quarto, where the auto-generated
 chunk label is prefixed with `fig-` so that `@fig-all_plots`
 cross-references resolve.
+
+## Footnotes and labels
+
+[`ggtibble()`](https://humanpred.github.io/ggtibble/reference/ggtibble.md)
+also takes `footnote` and `label` glue specifications, built per figure
+like `caption`. A footnote is a markdown note rendered under its figure:
+in LaTeX it goes inside the figure float (after the caption, in a
+smaller font, and out of the List of Figures), in Typst the figure and
+footnote share one unbreakable block, and in HTML and Word it is the
+paragraph directly after the figure (Word may still put a page break
+between them). A label is the figure’s own identifier for
+cross-references and part of the name of its image file; labels must be
+unique, ignoring case, and may use letters, digits, hyphens,
+underscores, and dots. Under Quarto, start labels with `fig-` so that
+`@fig-...` references resolve.
+
+A `ggtibble` with footnotes or labels is written as markdown, so a chunk
+that calls
+[`knit_print()`](https://rdrr.io/pkg/knitr/man/knit_print.html) on it
+needs `results = "asis"`; the `ggtibble` chunk option sets that for you.
+
+``` r
+
+footnoted_plots <-
+  ggtibble(
+    d_plot,
+    aes(x = disp, y = hp),
+    outercols = c("cyl", "dispu"),
+    caption = "Horsepower by displacement for {cyl} cars",
+    footnote = "Displacement is in {dispu}; each point is one car.",
+    label = "hp-disp-{cyl}",
+    labs = list(x = "Displacement ({dispu})", y = "Gross horsepower")
+  ) +
+  geom_point()
+```
+
+``` r
+
+knitr::knit_print(getFromNamespace(".ggtibble_chunk_cache", "ggtibble")[["footnoted_plots"]])
+```
+
+![Horsepower by displacement for 6
+cars](v01-introduction_files/figure-html/footnoted_plots-hp-disp-6.png)
+
+Horsepower by displacement for 6 cars
+
+Displacement is in cu. in.; each point is one car.
+
+![Horsepower by displacement for 4
+cars](v01-introduction_files/figure-html/footnoted_plots-hp-disp-4.png)
+
+Horsepower by displacement for 4 cars
+
+Displacement is in cu. in.; each point is one car.
+
+![Horsepower by displacement for 8
+cars](v01-introduction_files/figure-html/footnoted_plots-hp-disp-8.png)
+
+Horsepower by displacement for 8 cars
+
+Displacement is in cu. in.; each point is one car.
+
+[`ggsave()`](https://humanpred.github.io/ggtibble/reference/ggsave.md)
+names the files after the labels when no `filename` is given, so
+`ggsave(plot = footnoted_plots)` writes `hp-disp-4.png`,
+`hp-disp-6.png`, and `hp-disp-8.png`.

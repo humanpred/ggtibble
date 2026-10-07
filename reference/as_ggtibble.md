@@ -66,9 +66,9 @@ g <-
     c("weight", "horsepower")
   ))
 as_ggtibble(g)
-#> # A tibble: 2 × 2
-#>            figure caption   
-#>          <gglist> <chr>     
-#> 1 A ggplot object weight    
-#> 2 A ggplot object horsepower
+#> # A tibble: 2 × 4
+#>            figure caption    footnote label
+#>          <gglist> <chr>      <chr>    <chr>
+#> 1 A ggplot object weight     ""       ""   
+#> 2 A ggplot object horsepower ""       ""   
 ```

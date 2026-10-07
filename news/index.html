@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggtibble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,14 @@
       <small>Source: <a href="https://github.com/humanpred/ggtibble/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="ggtibble-development-version">ggtibble (development version)<a class="anchor" aria-label="anchor" href="#ggtibble-development-version"></a></h2>
+<ul><li>
+<code><a href="../reference/ggtibble.html">ggtibble()</a></code> gains <code>footnote</code> and <code>label</code> arguments, glue specifications evaluated per row like <code>caption</code>, giving <code>footnote</code> and <code>label</code> columns (empty when not given, including from <code><a href="../reference/as_ggtibble.html">as_ggtibble()</a></code>). A footnote is markdown rendered under its figure: inside the figure float after the caption in LaTeX (with the plain caption as the List of Figures entry), in one unbreakable block with the figure Div in Quarto Typst, as a smaller <code>figure-footnote</code> Div directly after the figure in HTML, and as a plain paragraph directly after the figure in Word and plain markdown. In LaTeX and Typst it cannot be separated from its figure by a page break; in Word it can, and it is in the body text size. A label is the figure’s own identifier (<code>\label{}</code> in LaTeX, the figure Div or image id in Quarto and pandoc output) and part of its image file name. Labels must be unique (ignoring case) and use only letters, digits, hyphens, underscores, and dots, and a figure id may appear only once in a document. Under Quarto, a label without the <code>fig-</code> prefix gives a warning, since <code>@</code> references to it do not resolve. A ggtibble without footnotes or labels renders as before.</li>
+<li>
+<code><a href="../reference/ggsave.html">ggsave()</a></code> on a <code>ggtibble</code> without <code>filename</code> names each file after its label.</li>
+<li>Quarto renders are detected again with current Quarto versions, which no longer set the <code>QUARTO_VERSION</code> environment variable, so the <code>ggtibble</code> chunk option once more prefixes <code>fig-</code> to its labels and uses <code>fig.subcap</code> for multiple captions under Quarto.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.4" id="ggtibble-104">ggtibble 1.0.4<a class="anchor" aria-label="anchor" href="#ggtibble-104"></a></h2><p class="text-muted">CRAN release: 2026-06-21</p>
 <ul><li>

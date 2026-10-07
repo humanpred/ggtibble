@@ -40,7 +40,7 @@ ggsave(
 
 # S3 method for class 'ggtibble'
 ggsave(
-  filename,
+  filename = NULL,
   plot,
   device = NULL,
   path = NULL,
@@ -62,7 +62,10 @@ ggsave(
 
   A character string passed to
   [`glue::glue_data()`](https://glue.tidyverse.org/reference/glue.html)
-  to generate file names for each row in `plot`.
+  to generate file names for each row in `plot`. For a `ggtibble`,
+  `NULL` (the default) names each file `<label>.<device>` from the
+  "label" column, with `device` as the extension (`"png"` when `device`
+  is `NULL`); every row must then have a label.
 
 - plot:
 

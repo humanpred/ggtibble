@@ -19,7 +19,7 @@ filename, it must be doubled so that sprintf returns what is desired.'></head><b
 
     <a class="navbar-brand me-2" href="../index.html">ggtibble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,6 +128,42 @@ auto-suffix.  Pass <code>fig_suffix</code> explicitly to override, or set
 
 <ul><li><p><code>knit_print(ggtibble)</code>: Print the plots in a <code>ggtibble</code> object</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="footnotes-and-labels">Footnotes and labels<a class="anchor" aria-label="anchor" href="#footnotes-and-labels"></a></h2>
+
+
+
+<p>A <code>ggtibble</code> whose "footnote" or "label" column (see <code><a href="ggtibble.html">ggtibble()</a></code>) is
+non-empty on any row is written by <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print()</a></code> as markdown: each figure
+is saved as an image and written with its caption, its footnote, and its
+label as its identifier.  The chunk therefore needs <code>results = "asis"</code>; the
+<code>ggtibble</code> chunk option sets it, and calling <code><a href="https://rdrr.io/pkg/knitr/man/knit_print.html" class="external-link">knit_print()</a></code> in a chunk
+without it is an error.  A <code>ggtibble</code> with no footnotes or labels renders
+through the knitr plot hook exactly as before.</p>
+<p>Of the chunk options, this route uses <code>fig.path</code>, <code>label</code>, <code>dev</code> (one of
+the common devices; others are an error), <code>fig.width</code>, <code>fig.height</code>, <code>dpi</code>,
+and, for LaTeX, <code>fig.pos</code>.  It does not apply <code>out.width</code>, <code>out.height</code>,
+<code>fig.align</code>, <code>fig.alt</code>, <code>fig.cap</code> (the captions come from the ggtibble), or
+<code>dev.args</code>.</p>
+<p>Captions and footnotes are markdown and pass through to pandoc: emphasis
+and links work, a footnote line starting with <code># </code> becomes a heading, and
+raw LaTeX reaches only LaTeX output (pandoc drops it elsewhere).  A caption
+is joined onto one line, and unbalanced square brackets in it are escaped.</p><table class="table table"><tr><td>Output</td><td>Figure</td><td>Footnote</td><td>Kept with the figure</td></tr><tr><td>LaTeX (R Markdown and Quarto)</td><td>A figure float with <code>\label{&lt;label&gt;}</code></td><td>Inside the float, appended to the caption after a line break in <code>\footnotesize</code>; the short caption (for the List of Figures) is the plain caption</td><td>Yes, it is in the float</td></tr><tr><td>Quarto to Typst</td><td>A figure Div</td><td>A paragraph in 0.9em text after the Div</td><td>Yes, the Div and footnote are one unbreakable Typst block</td></tr><tr><td>HTML</td><td>An image with its caption</td><td>A Div of class <code>figure-footnote</code> in a smaller font directly after the figure</td><td>Not applicable (no pages)</td></tr><tr><td>Word and other pandoc formats</td><td>An image with its caption</td><td>A plain paragraph, in the body text size, directly after the figure</td><td>No: Word may break the page between them</td></tr><tr><td>knitr markdown without pandoc</td><td>An image with its caption, without an identifier</td><td>A plain paragraph directly after the figure</td><td>Not applicable</td></tr></table><p>Under Quarto, a figure whose label starts with <code>fig-</code> is written as a
+figure Div so that <code>@&lt;label&gt;</code> cross-references resolve; other labels are
+kept as given, with a warning of class <code>ggtibble_warning_label_not_fig</code>,
+since Quarto reads <code>@&lt;label&gt;</code> without the prefix as a citation.  A figure
+without a label is given the identifier <code>fig-&lt;chunk label&gt;</code> (with
+<code>-&lt;row number&gt;</code> for more than one row), so each figure of a multi-row
+ggtibble is its own numbered figure rather than a subfigure.  Do not give
+such a chunk a <code>fig-</code> label of its own; the <code>ggtibble</code> chunk option leaves
+it off.  In R Markdown to LaTeX, cross-reference a labelled figure with
+<code>\ref{&lt;label&gt;}</code>.</p>
+<p>Figure ids must be unique within a document: an id already written by an
+earlier chunk is an error of class <code>ggtibble_error_label_duplicated</code>.  A
+labelled figure's image file is <code>&lt;chunk label&gt;-&lt;label&gt;</code> with the device's
+extension; other figures use the knitr default
+<code>&lt;chunk label&gt;-&lt;row number&gt;</code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other knitters:

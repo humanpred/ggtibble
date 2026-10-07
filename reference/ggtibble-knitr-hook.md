@@ -35,8 +35,9 @@ The chunk option value may be either:
   object form the chunk label is not auto-derived; set `label = ...`
   explicitly if you want a non-default label.
 
-Under Quarto (detected via the `QUARTO_VERSION` environment variable)
-the auto-derived label is prefixed with `"fig-"` so `@fig-...`
-cross-references work, and a multi-caption ggtibble is rendered using
-`fig.subcap` because Quarto's cross-reference resolver does not handle
-vector `fig.cap` on a `fig-` labelled chunk.
+Under Quarto (detected via the knitr package option `quarto.version` or
+the `QUARTO_VERSION` environment variable) the auto-derived label is
+prefixed with `"fig-"` so `@fig-...` cross-references work, and a
+multi-caption ggtibble is rendered using `fig.subcap` because Quarto's
+cross-reference resolver does not handle vector `fig.cap` on a `fig-`
+labelled chunk.

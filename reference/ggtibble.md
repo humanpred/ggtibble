@@ -15,7 +15,9 @@ ggtibble(
   ...,
   outercols = group_vars(data),
   labs = list(),
-  caption = ""
+  caption = "",
+  footnote = "",
+  label = ""
 )
 ```
 
@@ -48,16 +50,34 @@ ggtibble(
 
   The glue specification for creating the caption
 
+- footnote:
+
+  The glue specification for creating the footnote, a note rendered
+  under each figure and kept with it (see "Footnotes and labels" in
+  [`knit_print.gglist()`](https://humanpred.github.io/ggtibble/reference/knit_print.gglist.md)).
+  The default `""` gives no footnote.
+
+- label:
+
+  The glue specification for creating each figure's label, its
+  identifier for cross-references and part of the name of its image
+  file. Labels must be unique, ignoring case, and may contain only
+  letters, digits, hyphens, underscores, and dots. Under Quarto, start
+  them with `fig-` so that `@fig-...` cross-references resolve. The
+  default `""` gives no label.
+
 ## Value
 
 A data.frame with a column named "data_plot" with the data to plot,
-"figure" with the gglist, and "caption" with the captions
+"figure" with the gglist, "caption" with the captions, "footnote" with
+the footnotes, and "label" with the figure labels
 
 A `ggtibble` object which is a tibble with columns named "figure" which
 is a `gglist` object (a list of ggplots), "data_plot" which is the a
 list of data.frames making up the source data used for each individual
-plot, "caption" which is the text to use for the plot caption, and all
-of the `outercols` used for nesting.
+plot, "caption" which is the text to use for the plot caption,
+"footnote" which is the text to show under the plot, "label" which is
+the plot's identifier, and all of the `outercols` used for nesting.
 
 ## Methods (by class)
 

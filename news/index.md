@@ -1,5 +1,33 @@
 # Changelog
 
+## ggtibble (development version)
+
+- [`ggtibble()`](https://humanpred.github.io/ggtibble/reference/ggtibble.md)
+  gains `footnote` and `label` arguments, glue specifications evaluated
+  per row like `caption`, giving `footnote` and `label` columns (empty
+  when not given, including from
+  [`as_ggtibble()`](https://humanpred.github.io/ggtibble/reference/as_ggtibble.md)).
+  A footnote is markdown rendered under its figure: inside the figure
+  float after the caption in LaTeX (with the plain caption as the List
+  of Figures entry), in one unbreakable block with the figure Div in
+  Quarto Typst, as a smaller `figure-footnote` Div directly after the
+  figure in HTML, and as a plain paragraph directly after the figure in
+  Word and plain markdown. In LaTeX and Typst it cannot be separated
+  from its figure by a page break; in Word it can, and it is in the body
+  text size. A label is the figure’s own identifier (`\label{}` in
+  LaTeX, the figure Div or image id in Quarto and pandoc output) and
+  part of its image file name. Labels must be unique (ignoring case) and
+  use only letters, digits, hyphens, underscores, and dots, and a figure
+  id may appear only once in a document. Under Quarto, a label without
+  the `fig-` prefix gives a warning, since `@` references to it do not
+  resolve. A ggtibble without footnotes or labels renders as before.
+- [`ggsave()`](https://humanpred.github.io/ggtibble/reference/ggsave.md)
+  on a `ggtibble` without `filename` names each file after its label.
+- Quarto renders are detected again with current Quarto versions, which
+  no longer set the `QUARTO_VERSION` environment variable, so the
+  `ggtibble` chunk option once more prefixes `fig-` to its labels and
+  uses `fig.subcap` for multiple captions under Quarto.
+
 ## ggtibble 1.0.4
 
 CRAN release: 2026-06-21

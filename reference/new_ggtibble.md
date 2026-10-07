@@ -13,7 +13,10 @@ new_ggtibble(x)
 - x:
 
   A data.frame with a column named "figure" and "caption", and where the
-  "figure" column is a ggtibble.
+  "figure" column is a ggtibble. The "footnote" and "label" columns are
+  added as empty strings when absent. Non-empty labels must be unique,
+  ignoring case, and may contain only letters, digits, hyphens,
+  underscores, and dots.
 
 ## Value
 
@@ -28,8 +31,8 @@ Other New ggtibble objects:
 
 ``` r
 new_ggtibble(tibble::tibble(figure = list(ggplot2::ggplot()), caption = ""))
-#> # A tibble: 1 × 2
-#>            figure caption
-#>          <gglist> <chr>  
-#> 1 A ggplot object ""     
+#> # A tibble: 1 × 4
+#>            figure caption footnote label
+#>          <gglist> <chr>   <chr>    <chr>
+#> 1 A ggplot object ""      ""       ""   
 ```

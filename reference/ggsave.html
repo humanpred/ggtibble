@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggtibble</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,7 @@
 <span></span>
 <span><span class="co"># S3 method for class 'ggtibble'</span></span>
 <span><span class="fu">ggsave</span><span class="op">(</span></span>
-<span>  <span class="va">filename</span>,</span>
+<span>  filename <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">plot</span>,</span>
 <span>  device <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  path <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -100,7 +100,10 @@
 
 <dl><dt id="arg-filename">filename<a class="anchor" aria-label="anchor" href="#arg-filename"></a></dt>
 <dd><p>A character string passed to <code><a href="https://glue.tidyverse.org/reference/glue.html" class="external-link">glue::glue_data()</a></code> to generate
-file names for each row in <code>plot</code>.</p></dd>
+file names for each row in <code>plot</code>.  For a <code>ggtibble</code>, <code>NULL</code> (the default)
+names each file <code>&lt;label&gt;.&lt;device&gt;</code> from the "label" column, with <code>device</code>
+as the extension (<code>"png"</code> when <code>device</code> is <code>NULL</code>); every row must then
+have a label.</p></dd>
 
 
 <dt id="arg-plot">plot<a class="anchor" aria-label="anchor" href="#arg-plot"></a></dt>
