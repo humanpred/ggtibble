@@ -2,6 +2,8 @@
 
 ## ggtibble 1.0.4
 
+CRAN release: 2026-06-21
+
 - `gglist` objects may now nest: a `gglist` element of a `gglist` is
   allowed, so a `gglist` can represent a list of lists of plots. The `+`
   broadcast, [`print()`](https://rdrr.io/r/base/print.html), and the new
