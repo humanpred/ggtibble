@@ -36,4 +36,4 @@ URL: https://humanpred.github.io/ggtibble/, https://github.com/humanpred/ggtibbl
 BugReports: https://github.com/humanpred/ggtibble/issues
 Language: en-US
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
