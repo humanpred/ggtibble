@@ -99,3 +99,56 @@ test_that("ggsave.default", {
   )
   unlink(expected_file)
 })
+
+test_that("ggsave.ggtibble names files from the labels when `filename` is not given", {
+  labelled <-
+    ggtibble(
+      data.frame(A = c("foo", "bar"), B = 1:2),
+      ggplot2::aes(x = B, y = B),
+      outercols = "A",
+      label = "fig-{A}"
+    ) +
+    ggplot2::geom_point()
+  td <- withr::local_tempdir()
+  expect_equal(
+    ggsave(plot = labelled, path = td, width = 2, height = 2),
+    file.path(td, c("fig-foo.png", "fig-bar.png"))
+  )
+  expect_equal(
+    ggsave(plot = labelled, device = "pdf", path = td, width = 2, height = 2),
+    file.path(td, c("fig-foo.pdf", "fig-bar.pdf"))
+  )
+  expect_equal(
+    sort(list.files(td)),
+    c("fig-bar.pdf", "fig-bar.png", "fig-foo.pdf", "fig-foo.png")
+  )
+  # An explicit filename still wins
+  expect_equal(
+    ggsave(filename = "{A}.png", plot = labelled, path = td, width = 2, height = 2),
+    file.path(td, c("foo.png", "bar.png"))
+  )
+})
+
+test_that("ggsave.ggtibble without `filename` needs every label and a string device", {
+  partly <-
+    ggtibble(data.frame(A = c("foo", "bar"), B = 1:2), outercols = "A", label = "{A}")
+  partly$label[2] <- ""
+  expect_error(
+    ggsave(plot = partly, path = tempdir()),
+    regexp = "`filename` is required unless every row of the ggtibble has a `label`",
+    fixed = TRUE,
+    class = "ggtibble_error_label_missing"
+  )
+  unlabelled <- ggtibble(data.frame(A = c("foo", "bar"), B = 1:2), outercols = "A", caption = "{A}")
+  expect_error(
+    ggsave(plot = unlabelled, path = tempdir()),
+    class = "ggtibble_error_label_missing"
+  )
+  labelled <- ggtibble(data.frame(A = c("foo", "bar"), B = 1:2), outercols = "A", label = "{A}")
+  expect_error(
+    ggsave(plot = labelled, device = grDevices::png, path = tempdir()),
+    regexp = "`filename` is required when `device` is not a string, because the file extension cannot be chosen from it",
+    fixed = TRUE,
+    class = "ggtibble_error_device_extension"
+  )
+})
