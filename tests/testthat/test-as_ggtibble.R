@@ -53,3 +53,14 @@ test_that("as_ggtibble handles an empty gglist", {
 test_that("as_ggtibble errors on unsupported classes", {
   expect_error(as_ggtibble(1), regexp = "No `as_ggtibble\\(\\)` method")
 })
+
+test_that("as_ggtibble.gglist gives empty footnote and label columns", {
+  g <- new_gglist(stats::setNames(
+    list(ggplot2::ggplot(environment = emptyenv()), ggplot2::ggplot(environment = emptyenv())),
+    c("weight", "horsepower")
+  ))
+  gt <- as_ggtibble(g)
+  expect_equal(gt$footnote, c("", ""))
+  expect_equal(gt$label, c("", ""))
+  expect_named(as_ggtibble(new_gglist(list())), c("figure", "caption", "footnote", "label"))
+})
